@@ -40,7 +40,7 @@
     color: var(--gray-normal);
 }
 
-.body {
+#body {
     margin-left: 5%;
     margin-right: 5%;
 }

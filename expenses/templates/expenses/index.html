@@ -3,188 +3,19 @@
 
 {% block body %}
 <div id="summary">
-    <div class="spacer3"></div>
-    <h2>Summary</h2>
-    <div class="spacer4"></div>
-    <div class="summary-row">
-        <div class="summary-column flex4">
-            <div class="summary-info">
-                <p>Total monthy expenses</p>
-                <h1>$415</h1>
-                <p class="light-text">+16% Tax</p>
-            </div>
-        </div>
-        <div class="summary-column flex6">
-            <div class="summary-info">
-                <p>Monthly Income</p>
-                <h1>$547</h1>
-                <p class="light-text">+8% From returns</p>
-            </div>
-        </div>
-    </div>
-    <div class="spacer4"></div>
-    <div class="summary-row">
-        <div class="summary-column flex1">
-            <div class="summary-info">
-                <p>Total variable expenses</p>
-                <h1>$270</h1>
-                <p class="light-text">+16% Tax</p>
-            </div>
-        </div>
-        <div class="summary-column flex1">
-            <div class="summary-info">
-                <p>Credit debt</p>
-                <h1>$250</h1>
-                <p class="light-text">+16% Tax</p>
-            </div>
-        </div>
-        <div class="summary-column flex1">
-            <div class="summary-info">
-                <p>Cash expenditures</p>
-                <h1>$20</h1>
-                <p class="light-text">+16% Tax</p>
-            </div>
-        </div>
-    </div>
-    <div class="spacer4"></div>
-    <div class="summary-row">
-        <div class="summary-column flex1">
-            <div class="summary-info">
-                <p>Total fixed expenses</p>
-                <h1>$145</h1>
-                <p class="light-text">Expected payments</p>
-            </div>
-        </div>
-        <div class="summary-column flex1">
-            <div class="summary-info">
-                <p>Balance</p>
-                <h1>$132</h1>
-                <p class="light-text">* The more the better</p>
-            </div>
-        </div>
-    </div>
-    <div class="spacer4"></div>
 </div>
 
 <div id="details">
-    <div class="spacer4"></div>
-    <h2>Month</h2>
-    <select class="form-select" aria-label="Month selection">
-        <option value="1" selected>December 2024</option>
-        <option value="2">November 2024</option>
-        <option value="3">September 2024</option>
-    </select>
-    <div class="spacer4"></div>
-    <div id="expense-list">
-        <h2>Recent transactions</h2>
-        <table class="table">
-            <thead class="thead-light">
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Card</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>American Express</td>
-                    <td>Expense</td>
-                    <td>Groceries</td>
-                    <td>$150</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Discovery</td>
-                    <td>Expense</td>
-                    <td>Entertainment</td>
-                    <td>$100</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Cash</td>
-                    <td>Expense</td>
-                    <td>Gas</td>
-                    <td>$20</td>
-                </tr>
-            </tbody>
-        </table>
-        <button type="button" class="btn btn-primary">Add transaction</button>
-    </div>
 </div>
 
 <div id="transaction-form">
-    <div class="spacer4"></div>
-    <h1>Add transaction</h1>
-    <div class="spacer4"></div>
-    <form>
-        <select class="form-select" aria-label="Type Select">
-            <option selected disabled>Transaction Type</option>
-            <option value="1">Income</option>
-            <option value="2">Expense</option>
-        </select>
-        <div class="spacer4"></div>
-        <select class="form-select" aria-label="Category Select">
-            <option selected disabled>Category</option>
-            <option value="1">Groceries</option>
-            <option value="2">Entertainment</option>
-            <option value="3">Gas</option>
-        </select>
-        <div class="spacer4"></div>
-        <select class="form-select" aria-label="Category Select">
-            <option selected disabled>Payment method</option>
-            <option value="1">Mastercard</option>
-            <option value="2">Discovery</option>
-            <option value="3">Cash</option>
-        </select>
-        <div class="spacer4"></div>
-        <div class="mb-3">
-            <label for="amount" class="form-label">Amount</label>
-            <input type="number" class="form-control" id="form-amount" placeholder="10.00">
-        </div>
-        <div class="spacer2"></div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-            <label class="form-check-label" for="flexSwitchCheckChecked">Repeating</label>
-        </div>
-        <div class="spacer4"></div>
-        <select class="form-select" aria-label="Category Select">
-            <label for="amount" class="form-label">Every:</label>
-            <option value="1">Week</option>
-            <option value="2">Month</option>
-            <option value="3">Year</option>
-        </select>
-        <div class="spacer4"></div>
-        <button type="button" class="btn btn-primary">Add transaction</button>
-        <div class="spacer4"></div>
-    </form>
 </div>
 
 <div id="method-form">
-    <div class="spacer4"></div>
-    <h1>Add Payment method</h1>
-    <div class="spacer4"></div>
-    <form>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Card Name" aria-label="Card-Name" aria-describedby="basic-addon1">
-        </div>
-        <div class="spacer2"></div>
-        <select class="form-select" aria-label="Category Select">
-            <option selected disabled>Card company</option>
-            <option value="1">Mastercard</option>
-            <option value="2">Visa</option>
-            <option value="3">Discovery</option>
-            <option value="4">American Express</option>
-        </select>
-        <div class="spacer4"></div>
-        <button type="button" class="btn btn-primary">Add method</button>
-        <div class="spacer4"></div>
-    </form>
 </div>
 {% endblock %}
 
 {% block script %}
     <script src="{% static 'expenses/nav-buttons.js'%}" ></script>
+    <script src="{% static 'expenses/app.js'%}" type="text/babel"></script>
 {% endblock %}
