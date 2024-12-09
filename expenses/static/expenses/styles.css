@@ -45,6 +45,10 @@
     margin-right: 5%;
 }
 
+#details, #transaction-form, #method-form {
+    display: none;
+}
+
 .summary-row {
     display: flex;
     flex-direction: row;
