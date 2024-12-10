@@ -154,28 +154,35 @@ const Details = () => (
 /////////////// TRANSACTION FORM /////////////////
 
 // TransactionForm Component
-const TransactionForm = () => (
+function TransactionForm () {
+    const [checked, setChecked] = React.useState(false);
+
+    function handleCheck() {
+        setChecked(!checked);
+    }
+
+    return (
     <div id="transaction-form">
         <Spacer size="4" />
         <h1>Add transaction</h1>
         <Spacer size="4" />
         <form>
-            <select className="form-select" defaultValue={'income'}>
-                <option disabled>Transaction Type</option>
+            <select className="form-select" defaultValue={'default'}>
+                <option value="default" disabled>Transaction Type</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" defaultValue={'other'}>
-                <option disabled>Category</option>
+            <select className="form-select" defaultValue={'default'}>
+                <option value="default" disabled>Category</option>
                 <option value="groceries">Groceries</option>
                 <option value="entertainment">Entertainment</option>
                 <option value="gas">Gas</option>
                 <option value="other">other</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select">
-                <option disabled>Payment method</option>
+            <select className="form-select" defaultValue={'default'}>
+                <option value="default" disabled>Payment method</option>
                 <option value="1">Mastercard</option>
                 <option value="2">Discovery</option>
                 <option value="3">Cash</option>
@@ -187,21 +194,26 @@ const TransactionForm = () => (
             </div>
             <Spacer size="2" />
             <div className="form-check form-switch">
-                <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" defaultChecked />
+                <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={handleCheck}/>
                 <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Repeating</label>
             </div>
             <Spacer size="4" />
-            <select className="form-select">
-                <option value="1">Week</option>
-                <option value="2">Month</option>
-                <option value="3">Year</option>
-            </select>
-            <Spacer size="4" />
+
+            {checked ? <>
+                    <select className="form-select">
+                        <option value="1">Week</option>
+                        <option value="2">Month</option>
+                        <option value="3">Year</option>
+                    </select>
+                    <Spacer size="4" />
+                </> : null}
+                
             <button type="button" className="btn btn-primary">Add transaction</button>
             <Spacer size="4" />
         </form>
     </div>
-);
+    );
+}
 
 //////////// PAYMENT OPTION FORM ///////////////////
 
