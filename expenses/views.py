@@ -9,7 +9,10 @@ from .models import User
 
 # Create your views here.
 def index(request):
-    return render(request, "expenses/index.html")
+    if request.user.is_authenticated:
+        return render(request, "expenses/index.html")
+    else:
+        return HttpResponseRedirect(reverse("login"))
 
 
 def login_view(request):
