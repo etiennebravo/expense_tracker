@@ -161,6 +161,8 @@ function TransactionForm () {
         setChecked(!checked);
     }
 
+    // TODO: retreive transaction methods to list in select options
+
     return (
     <div id="transaction-form">
         <Spacer size="4" />
@@ -178,14 +180,12 @@ function TransactionForm () {
                 <option value="groceries">Groceries</option>
                 <option value="entertainment">Entertainment</option>
                 <option value="gas">Gas</option>
-                <option value="other">other</option>
+                <option value="other">Other</option>
             </select>
             <Spacer size="4" />
             <select className="form-select" defaultValue={'default'}>
                 <option value="default" disabled>Payment method</option>
-                <option value="1">Mastercard</option>
-                <option value="2">Discovery</option>
-                <option value="3">Cash</option>
+                <option value="cash">Cash</option>
             </select>
             <Spacer size="4" />
             <div className="mb-3">
@@ -199,16 +199,18 @@ function TransactionForm () {
             </div>
             <Spacer size="4" />
 
-            {checked ? <>
-                    <select className="form-select">
-                        <option value="1">Week</option>
-                        <option value="2">Month</option>
-                        <option value="3">Year</option>
-                    </select>
-                    <Spacer size="4" />
-                </> : null}
-                
-            <button type="button" className="btn btn-primary">Add transaction</button>
+            {checked ? 
+            <>
+                <select className="form-select" defaultValue={'none'}>
+                    <option value="none">One time</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+                <Spacer size="4" />
+            </> : null}
+
+            <button type="submit" className="btn btn-primary">Add transaction</button>
             <Spacer size="4" />
         </form>
     </div>
