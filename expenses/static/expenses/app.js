@@ -13,6 +13,29 @@ function App() {
     );
 }
 
+/// Code provided by the quack50 at https://cs50.ai/chat
+/// Removes the necessity to make the post requests processed within JS csrf-exempt.
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+/// end of citation
+
 const Spacer = ({ size }) => <div className={`spacer${size}`}></div>;
 
 /////////////// SUMMARY ///////////////////
@@ -169,13 +192,13 @@ function TransactionForm () {
         <h1>Add transaction</h1>
         <Spacer size="4" />
         <form>
-            <select className="form-select" defaultValue={'default'}>
+            <select className="form-select" defaultValue={'default'} required>
                 <option value="default" disabled>Transaction Type</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" defaultValue={'default'}>
+            <select className="form-select" defaultValue={'default'} required>
                 <option value="default" disabled>Category</option>
                 <option value="groceries">Groceries</option>
                 <option value="entertainment">Entertainment</option>
@@ -183,14 +206,14 @@ function TransactionForm () {
                 <option value="other">Other</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" defaultValue={'default'}>
+            <select className="form-select" defaultValue={'default'} required>
                 <option value="default" disabled>Payment method</option>
                 <option value="cash">Cash</option>
             </select>
             <Spacer size="4" />
             <div className="mb-3">
                 <label htmlFor="form-amount" className="form-label">Amount</label>
-                <input type="number" className="form-control" id="form-amount" placeholder="10.00" />
+                <input type="number" className="form-control" id="form-amount" placeholder="0.00" min="0.01"/>
             </div>
             <Spacer size="2" />
             <div className="form-check form-switch">
@@ -220,32 +243,92 @@ function TransactionForm () {
 //////////// PAYMENT OPTION FORM ///////////////////
 
 // MethodForm Component
-const MethodForm = () => (
-  <div id="method-form">
-    <Spacer size="4" />
-    <h1>Add Payment Method</h1>
-    <Spacer size="4" />
-    <form>
-      <div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Card Name"
-          aria-label="Card-Name"
-          aria-describedby="basic-addon1"
-        />
-      </div>
-      <Spacer size="2" />
-      <select className="form-select" aria-label="Category Select" defaultValue={'Card Company'}>
-        <option disabled>Card Company</option>
-        <option value="1">Mastercard</option>
-        <option value="2">Visa</option>
-        <option value="3">Discovery</option>
-        <option value="4">American Express</option>
-      </select>
-      <Spacer size="4" />
-      <button type="button" className="btn btn-primary">Add Method</button>
-      <Spacer size="4" />
-    </form>
-  </div>
-);
+const MethodForm = () => {
+    const [methodName, setMethodName] = React.useState('')
+    const [methodType, setMethodType] = React.useState('')
+    const [methodProcessor, setMethodProcessor] = React.useState('')
+
+    function handleNameChange(event) {
+        setMethodName(event.target.value)
+    }
+
+    function handleTypeChange(event) {
+        setMethodType(event.target.value)
+    }
+
+    function handleProcessorChange(event) {
+        setMethodProcessor(event.target.value)
+    }
+
+    function createMethod(event) {
+        if (methodName != '' || methodType != '' ||  methodProcessor != '') {
+            fetch('/method', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    name: methodName,
+                    type: methodType,
+                    processor: methodProcessor
+                })
+            })
+                .then(response => {
+                    console.log(response);
+                    if (!response.ok) { throw new Error('Network response was not ok'); }
+                    return response.json();
+                })
+                .then(method => {
+                    console.log(method);
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed', error);
+                })
+        } else {
+            event.preventDefault();
+            console.log('Form must have content');
+        }
+
+        return false;
+    }
+
+    return (
+        <div id="method-form">
+            <Spacer size="4" />
+            <h1>Add Payment Method</h1>
+            <Spacer size="4" />
+            <form>
+            <div className="input-group mb-3">
+                <input
+                type="text"
+                className="form-control"
+                placeholder="Card Name"
+                aria-label="Card-Name"
+                name="name"
+                onChange={handleNameChange}
+                required
+                />
+            </div>
+            <select className="form-select" aria-label="Category Select" name="type" defaultValue={''}
+                onChange={handleTypeChange}>
+                <option value="" disabled>Type</option>
+                <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
+            </select>
+            <Spacer size="2" />
+            <select className="form-select" aria-label="Category Select" name="processor" defaultValue={''}
+                onChange={handleProcessorChange}>
+                <option value="" disabled>Card Processor</option>
+                <option value="mastercard">Mastercard</option>
+                <option value="visa">Visa</option>
+                <option value="discovery">Discovery</option>
+                <option value="am">American Express</option>
+            </select>
+            <Spacer size="4" />
+            <button type="submit" onClick={event => createMethod(event)} className="btn btn-primary">Add Method</button>
+            <Spacer size="4" />
+            </form>
+        </div>
+    );
+}

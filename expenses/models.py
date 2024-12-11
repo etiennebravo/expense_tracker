@@ -10,8 +10,7 @@ class PaymentMethod(models.Model):
     METHOD_TYPES = [
         ('cash', 'Cash'),
         ('credit', 'Credit'),
-        ('debit', 'Debit'),
-        ('checking', 'Checking Account')
+        ('debit', 'Debit')
     ]
 
     CARD_PROCESSORS = [
@@ -21,7 +20,7 @@ class PaymentMethod(models.Model):
         ('discovery', 'Discovery')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    userID = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=50, choices=METHOD_TYPES)
     processor = models.CharField(max_length=100, choices=CARD_PROCESSORS)
@@ -51,8 +50,8 @@ class Transaction(models.Model):
         ('yearly', 'Yearly')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, blank=True)
+    userID = models.ForeignKey(User, on_delete=models.CASCADE)
+    payment_methodID = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, blank=True)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     category = models.CharField(max_length=50, choices=CATEGORIES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,11 +1,12 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from .models import User
+from .models import User, PaymentMethod, Transaction
 
 # Create your views here.
 def index(request):
@@ -13,6 +14,24 @@ def index(request):
         return render(request, "expenses/index.html")
     else:
         return HttpResponseRedirect(reverse("login"))
+    
+
+@login_required
+def register_method(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    user = get_object_or_404(User, pk=request.user.id)
+
+    data = json.loads(request.body)
+    method_name = data.get('name', '')
+    method_type = data.get('type', '')
+    method_processor = data.get('processor', '')
+
+    method = PaymentMethod(userID=user, name=method_name, type=method_type, processor=method_processor)
+    method.save()
+
+    return JsonResponse({"message": "Method registered"}, status=201)
 
 
 def login_view(request):
