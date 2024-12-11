@@ -8,5 +8,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
 
     # API
-    path("method", views.register_method, name="method")
+    path("method", views.register_method, name="method"),
+    path("list_methods", views.list_methods, name="list_methods")
 ]

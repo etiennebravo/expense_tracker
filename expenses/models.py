@@ -27,6 +27,12 @@ class PaymentMethod(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name' : self.name
+        }
 
 
 class Transaction(models.Model):

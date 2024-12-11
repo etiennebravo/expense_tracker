@@ -34,6 +34,20 @@ def register_method(request):
     return JsonResponse({"message": "Method registered"}, status=201)
 
 
+@login_required
+def list_methods(request):
+    user = get_object_or_404(User, pk=request.user.id)
+
+    method_list = PaymentMethod.objects.filter(userID=user)
+
+    serialized_list = []
+    for method in method_list:
+        serialized_method = method.serialize()
+        serialized_list.append(serialized_method)
+
+    return JsonResponse(serialized_list, safe=False)
+
+
 def login_view(request):
     if request.method == "POST":
 

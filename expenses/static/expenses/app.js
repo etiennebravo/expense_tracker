@@ -179,12 +179,24 @@ const Details = () => (
 // TransactionForm Component
 function TransactionForm () {
     const [checked, setChecked] = React.useState(false);
+    const [methods, setMethods] = React.useState([])
 
     function handleCheck() {
+        // set to contrary boolean value
         setChecked(!checked);
     }
 
-    // TODO: retreive transaction methods to list in select options
+    React.useEffect(() => {
+        fetch('/list_methods')
+        .then (response => {
+            console.log(response)
+            return response.json();
+        })
+        .then (methods => {
+            console.log(methods);
+            setMethods(methods)
+        })
+    }, []);
 
     return (
     <div id="transaction-form">
@@ -208,6 +220,10 @@ function TransactionForm () {
             <Spacer size="4" />
             <select className="form-select" defaultValue={'default'} required>
                 <option value="default" disabled>Payment method</option>
+                { methods.map((method) => (
+                     <option key={method.id} value={method.id}> {method.name} </option>
+                    ))
+                }
                 <option value="cash">Cash</option>
             </select>
             <Spacer size="4" />
