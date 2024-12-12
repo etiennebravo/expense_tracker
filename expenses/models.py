@@ -24,7 +24,7 @@ class PaymentMethod(models.Model):
     ]
 
     userID = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     type = models.CharField(max_length=50, choices=METHOD_TYPES)
     processor = models.CharField(max_length=100, choices=CARD_PROCESSORS)
 
