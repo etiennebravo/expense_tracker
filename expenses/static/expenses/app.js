@@ -260,35 +260,30 @@ function TransactionForm () {
 
 // MethodForm Component
 const MethodForm = () => {
-    const [methodName, setMethodName] = React.useState('')
-    const [methodType, setMethodType] = React.useState('')
-    const [methodProcessor, setMethodProcessor] = React.useState('')
+    const [state, setState] = React.useState({
+        methodName: '',
+        methodType: '',
+        methodProcessor: ''
+    });
 
-    function handleNameChange(event) {
-        setMethodName(event.target.value)
-    }
+    const handleChange = (e) => {
+        setState({
+            ...state,
+            [e.target.name]: e.target.value
+        });
+    };
 
-    function handleTypeChange(event) {
-        setMethodType(event.target.value)
-    }
+    function createMethod(e) {
+        e.preventDefault();
 
-    function handleProcessorChange(event) {
-        setMethodProcessor(event.target.value)
-    }
-
-    function createMethod(event) {
-        if (methodName != '' || methodType != '' ||  methodProcessor != '') {
+        if (state.methodName != '' && state.methodType != '' && state.methodProcessor != '' ) {
             fetch('/method', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken
                 },
-                body: JSON.stringify({
-                    name: methodName,
-                    type: methodType,
-                    processor: methodProcessor
-                })
+                body: JSON.stringify(state)
             })
                 .then(response => {
                     console.log(response);
@@ -297,12 +292,17 @@ const MethodForm = () => {
                 })
                 .then(method => {
                     console.log(method);
+                    setState({
+                        methodName: '',
+                        methodType: '',
+                        methodProcessor: ''
+                    });
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);
                 })
+
         } else {
-            event.preventDefault();
             console.log('Form must have content');
         }
 
@@ -321,20 +321,21 @@ const MethodForm = () => {
                 className="form-control"
                 placeholder="Card Name"
                 aria-label="Card-Name"
-                name="name"
-                onChange={handleNameChange}
+                name="methodName"
+                value={state.methodName}
+                onChange={handleChange}
                 required
                 />
             </div>
-            <select className="form-select" aria-label="Category Select" name="type" defaultValue={''}
-                onChange={handleTypeChange}>
+            <select className="form-select" aria-label="Category Select" name="methodType" value={state.methodType}
+                onChange={handleChange}>
                 <option value="" disabled>Type</option>
                 <option value="credit">Credit</option>
                 <option value="debit">Debit</option>
             </select>
             <Spacer size="2" />
-            <select className="form-select" aria-label="Category Select" name="processor" defaultValue={''}
-                onChange={handleProcessorChange}>
+            <select className="form-select" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
+                onChange={handleChange}>
                 <option value="" disabled>Card Processor</option>
                 <option value="mastercard">Mastercard</option>
                 <option value="visa">Visa</option>
