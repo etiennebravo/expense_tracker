@@ -9,5 +9,6 @@ urlpatterns = [
 
     # API
     path("method", views.register_method, name="method"),
-    path("list_methods", views.list_methods, name="list_methods")
+    path("list_methods", views.list_methods, name="list_methods"),
+    path("register_transaction", views.register_transaction, name="register_transaction")
 ]

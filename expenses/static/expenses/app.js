@@ -179,11 +179,66 @@ const Details = () => (
 // TransactionForm Component
 function TransactionForm () {
     const [checked, setChecked] = React.useState(false);
-    const [methods, setMethods] = React.useState([])
+    const [methods, setMethods] = React.useState([]);
+
+    const [state, setState] = React.useState({
+        type: '',
+        category: '',
+        paymentMethod: '',
+        amount: '',
+        repetition: 'none'
+    });
+
+    const handleChange = (e) => {
+        setState({
+            ...state,
+            [e.target.name]: e.target.value
+        });
+    };
 
     function handleCheck() {
-        // set to contrary boolean value
         setChecked(!checked);
+    }
+
+    function createTransaction(e) {
+        e.preventDefault();
+
+        if (state.type != '' && state.category != '' 
+            && state.paymentMethod != '' && state.amount != '' 
+            && state.repetition != ''
+        ) {
+            fetch('/register_transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(state)
+            })
+                .then(response => {
+                    console.log(response);
+                    if (!response.ok) { throw new Error('Network response was not ok'); }
+                    return response.json();
+                })
+                .then(method => {
+                    console.log(method);
+                    setState({
+                        type: '',
+                        category: '',
+                        paymentMethod: '',
+                        amount: '',
+                        repetition: 'none'
+                    });
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed', error);
+                })
+
+        } else {
+            console.log('Form must have content');
+        }
+
+        return false;
     }
 
     React.useEffect(() => {
@@ -204,32 +259,32 @@ function TransactionForm () {
         <h1>Add transaction</h1>
         <Spacer size="4" />
         <form>
-            <select className="form-select" defaultValue={'default'} required>
-                <option value="default" disabled>Transaction Type</option>
+            <select className="form-select" name="type" value={state.type} onChange={handleChange} required>
+                <option value="" disabled>Transaction Type</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" defaultValue={'default'} required>
-                <option value="default" disabled>Category</option>
+            <select className="form-select" name="category" value={state.category} onChange={handleChange} required>
+                <option value="" disabled>Category</option>
                 <option value="groceries">Groceries</option>
                 <option value="entertainment">Entertainment</option>
                 <option value="gas">Gas</option>
                 <option value="other">Other</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" defaultValue={'default'} required>
-                <option value="default" disabled>Payment method</option>
+            <select className="form-select" name="paymentMethod" value={state.paymentMethod} onChange={handleChange} required>
+                <option value="" disabled>Payment method</option>
                 { methods.map((method) => (
                      <option key={method.id} value={method.id}> {method.name} </option>
                     ))
                 }
-                <option value="cash">Cash</option>
             </select>
             <Spacer size="4" />
             <div className="mb-3">
                 <label htmlFor="form-amount" className="form-label">Amount</label>
-                <input type="number" className="form-control" id="form-amount" placeholder="0.00" min="0.01"/>
+                <input type="number" className="form-control" id="form-amount"
+                       placeholder="0.00" min="0.01" name="amount" value={state.amount} onChange={handleChange}/>
             </div>
             <Spacer size="2" />
             <div className="form-check form-switch">
@@ -240,7 +295,7 @@ function TransactionForm () {
 
             {checked ? 
             <>
-                <select className="form-select" defaultValue={'none'}>
+                <select className="form-select" name="repetition" value={state.repetition} onChange={handleChange}>
                     <option value="none">One time</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
@@ -249,7 +304,7 @@ function TransactionForm () {
                 <Spacer size="4" />
             </> : null}
 
-            <button type="submit" className="btn btn-primary">Add transaction</button>
+            <button type="submit" onClick={event => createTransaction(event)} className="btn btn-primary">Add transaction</button>
             <Spacer size="4" />
         </form>
     </div>

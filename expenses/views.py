@@ -35,6 +35,30 @@ def register_method(request):
 
 
 @login_required
+def register_transaction(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    user = get_object_or_404(User, pk=request.user.id)
+
+    data = json.loads(request.body)
+    type = data.get('type', '')
+    category = data.get('category', '')
+    method = data.get('paymentMethod', '')
+    amount = data.get('amount', '')
+    repetition = data.get('repetition', '')
+
+    paymentMethod = PaymentMethod.objects.get(id=method)
+
+    transaction = Transaction(userID=user, payment_methodID=paymentMethod,
+                              transaction_type=type, category=category,
+                              amount=amount, repeat_interval=repetition)
+    transaction.save()
+
+    return JsonResponse({"message": "Method registered"}, status=201)
+
+
+@login_required
 def list_methods(request):
     user = get_object_or_404(User, pk=request.user.id)
 

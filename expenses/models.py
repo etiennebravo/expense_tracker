@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 class User(AbstractUser):
@@ -14,6 +16,7 @@ class PaymentMethod(models.Model):
     ]
 
     CARD_PROCESSORS = [
+        ('none', 'None'),
         ('visa', 'VISA'),
         ('mastercard', 'Mastercard'),
         ('am', 'American Express'),
@@ -33,6 +36,15 @@ class PaymentMethod(models.Model):
             'id': self.id,
             'name' : self.name
         }
+    
+
+@receiver(post_save, sender=User) 
+def create_default_payment_method(sender, instance, created, **kwargs):
+    if created:
+        PaymentMethod.objects.create( userID=instance,
+                                      name='Cash',
+                                      type='cash',
+                                      processor='none')
 
 
 class Transaction(models.Model):
