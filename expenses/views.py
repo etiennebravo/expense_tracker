@@ -20,18 +20,26 @@ def index(request):
 def register_method(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=400)
+    
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
 
-    user = get_object_or_404(User, pk=request.user.id)
+        data = json.loads(request.body)
+        method_name = data.get('name', '')
+        method_type = data.get('type', '')
+        method_processor = data.get('processor', '')
 
-    data = json.loads(request.body)
-    method_name = data.get('name', '')
-    method_type = data.get('type', '')
-    method_processor = data.get('processor', '')
+        method = PaymentMethod(userID=user, name=method_name, type=method_type, processor=method_processor)
+        method.save()
 
-    method = PaymentMethod(userID=user, name=method_name, type=method_type, processor=method_processor)
-    method.save()
-
-    return JsonResponse({"message": "Method registered"}, status=201)
+        return JsonResponse({"message": "Method registered"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except IntegrityError:
+        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
 
 
 @login_required
@@ -39,37 +47,53 @@ def register_transaction(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=400)
 
-    user = get_object_or_404(User, pk=request.user.id)
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
 
-    data = json.loads(request.body)
-    type = data.get('type', '')
-    category = data.get('category', '')
-    method = data.get('paymentMethod', '')
-    amount = data.get('amount', '')
-    repetition = data.get('repetition', '')
+        data = json.loads(request.body)
+        type = data.get('type', '')
+        category = data.get('category', '')
+        method = data.get('paymentMethod', '')
+        amount = data.get('amount', '')
+        repetition = data.get('repetition', '')
 
-    paymentMethod = PaymentMethod.objects.get(id=method)
+        paymentMethod = PaymentMethod.objects.get(id=method)
 
-    transaction = Transaction(userID=user, payment_methodID=paymentMethod,
-                              transaction_type=type, category=category,
-                              amount=amount, repeat_interval=repetition)
-    transaction.save()
+        transaction = Transaction(userID=user, payment_methodID=paymentMethod,
+                                transaction_type=type, category=category,
+                                amount=amount, repeat_interval=repetition)
+        transaction.save()
 
-    return JsonResponse({"message": "Method registered"}, status=201)
+        return JsonResponse({"message": "Method registered"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except IntegrityError:
+        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
 
 
 @login_required
 def list_methods(request):
-    user = get_object_or_404(User, pk=request.user.id)
+    try: 
+        user = get_object_or_404(User, pk=request.user.id)
 
-    method_list = PaymentMethod.objects.filter(userID=user)
+        method_list = PaymentMethod.objects.filter(userID=user)
 
-    serialized_list = []
-    for method in method_list:
-        serialized_method = method.serialize()
-        serialized_list.append(serialized_method)
+        serialized_list = []
+        for method in method_list:
+            serialized_method = method.serialize()
+            serialized_list.append(serialized_method)
 
-    return JsonResponse(serialized_list, safe=False)
+        return JsonResponse(serialized_list, safe=False)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except IntegrityError:
+        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
 
 
 def login_view(request):

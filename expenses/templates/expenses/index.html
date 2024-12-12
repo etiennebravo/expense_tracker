@@ -2,6 +2,10 @@
 {% load static %}
 
 {% block body %}
+{% if message %}
+    <div>{{ message }}</div>
+{% endif %}
+
 <div id="summary">
 </div>
 
