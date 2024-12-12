@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -24,9 +25,14 @@ class PaymentMethod(models.Model):
     ]
 
     userID = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     type = models.CharField(max_length=50, choices=METHOD_TYPES)
     processor = models.CharField(max_length=100, choices=CARD_PROCESSORS)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['userID', 'name'], name='unique_payment_method_per_user')
+        ]
 
     def __str__(self):
         return self.name

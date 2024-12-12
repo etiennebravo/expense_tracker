@@ -82,7 +82,7 @@ def register_transaction(request):
                                 amount=amount, repeat_interval=repetition)
         transaction.save()
 
-        return JsonResponse({"message": "Method registered"}, status=201)
+        return JsonResponse({"message": "Transaction registered"}, status=201)
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)

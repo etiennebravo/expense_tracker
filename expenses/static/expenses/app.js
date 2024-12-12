@@ -229,6 +229,7 @@ function TransactionForm () {
                         amount: '',
                         repetition: 'none'
                     });
+                    setChecked(false);
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);
@@ -288,7 +289,7 @@ function TransactionForm () {
             </div>
             <Spacer size="2" />
             <div className="form-check form-switch">
-                <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={handleCheck}/>
+                <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" value={checked} onChange={handleCheck}/>
                 <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Repeating</label>
             </div>
             <Spacer size="4" />
