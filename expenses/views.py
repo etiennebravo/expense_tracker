@@ -18,6 +18,15 @@ def index(request):
 
 @login_required
 def register_method(request):
+
+    """
+    Handles the registration of a new payment method for a user.
+    Args:
+        request: HTTP request object
+    Returns:
+        JsonResponse indicating success or failure of the registration
+    """
+
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=400)
     
@@ -44,6 +53,15 @@ def register_method(request):
 
 @login_required
 def register_transaction(request):
+
+    """
+    Handles the registration of a new transaction for a user.
+    Args:
+        request: HTTP request object
+    Returns:
+        JsonResponse indicating success or failure of the registration
+    """
+
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=400)
 
@@ -76,6 +94,16 @@ def register_transaction(request):
 
 @login_required
 def list_methods(request):
+
+    """
+    Lists all payment methods from a user. This is used to provide options for the
+    transaction form.
+    Args:
+        request: HTTP request object
+    Returns:
+        JsonResponse indicating success or failure of the retreival of information
+    """
+
     try: 
         user = get_object_or_404(User, pk=request.user.id)
 
