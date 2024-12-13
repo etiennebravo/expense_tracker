@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import UniqueConstraint
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -84,3 +83,14 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f'{self.transaction_type} - {self.amount} USD'
+
+    def serialize(self):
+        return {
+            "userID": self.userID,
+            "methodID": self.payment_methodID,
+            "type": self.transaction_type,
+            "category": self.category,
+            "amount": self.amount,
+            "date": self.date,
+            "repeat_interval": self.repeat_interval
+        }
