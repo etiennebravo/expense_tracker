@@ -64,49 +64,56 @@ const SummaryRow = ({ children }) => (
 );
 
 // Main summary component
-const Summary = () => (
-    <div id="summary">
-        <Spacer size="3" />
-        <h2>Summary</h2>
-        <Spacer size="4" />
+function Summary() {
+    const [transactions, setTransactions] = React.useState([])
 
-        {/* First row */}
-        <SummaryRow>
-            <SummaryColumn flexClass="flex4">
-                <SummaryInfo title="Total monthly expenses" amount="$415" description="+16% Tax" />
-            </SummaryColumn>
-            <SummaryColumn flexClass="flex6">
-                <SummaryInfo title="Monthly Income" amount="$547" description="+8% From returns" />
-            </SummaryColumn>
-        </SummaryRow>
-        <Spacer size="4" />
+    React.useEffect(() => {
+        fetch('/list_transactions')
+        .then (response => {
+            console.log(response)
+            return response.json();
+        })
+        .then (data => {
+            console.log(data);
+            setTransactions(data);
+        })
+    }, []);
 
-        {/* Second row */}
-        <SummaryRow>
-            <SummaryColumn flexClass="flex1">
-                <SummaryInfo title="Total variable expenses" amount="$270" description="+16% Tax" />
-            </SummaryColumn>
-            <SummaryColumn flexClass="flex1">
-                <SummaryInfo title="Credit debt" amount="$250" description="+16% Tax" />
-            </SummaryColumn>
-            <SummaryColumn flexClass="flex1">
-                <SummaryInfo title="Cash expenditures" amount="$20" description="+16% Tax" />
-            </SummaryColumn>
-        </SummaryRow>
-        <Spacer size="4" />
+    return (
+        <div id="summary">
+            <Spacer size="3" />
+            <h2>Summary</h2>
+            <Spacer size="4" />
 
-        {/* Third row */}
-        <SummaryRow>
-            <SummaryColumn flexClass="flex1">
-                <SummaryInfo title="Total fixed expenses" amount="$145" description="Expected payments" />
-            </SummaryColumn>
-            <SummaryColumn flexClass="flex1">
-                <SummaryInfo title="Balance" amount="$132" description="* The more the better" />
-            </SummaryColumn>
-        </SummaryRow>
-        <Spacer size="4" />
-    </div>
-);
+
+            <>
+                <SummaryRow>
+                    <SummaryColumn flexClass="flex4">
+                        <SummaryInfo title="Total monthly expenses" amount={transactions.expense_amount} description="+16% Tax" />
+                    </SummaryColumn>
+                    <SummaryColumn flexClass="flex6">
+                        <SummaryInfo title="Monthly Income" amount={transactions.income_amount} description="+8% From returns" />
+                    </SummaryColumn>
+                </SummaryRow>
+                <Spacer size="4" />
+
+                <SummaryRow>
+                    <SummaryColumn flexClass="flex1">
+                        <SummaryInfo title="Total variable expenses" amount={transactions.variable_expense_amount} description="+16% Tax" />
+                    </SummaryColumn>
+                    <SummaryColumn flexClass="flex1">
+                        <SummaryInfo title="Total fixed expenses" amount={transactions.fixed_expense_amount} description="Expected payments" />
+                    </SummaryColumn>
+                    <SummaryColumn flexClass="flex1">
+                        <SummaryInfo title="Balance" amount={transactions.balance} description="* The more the better" />
+                    </SummaryColumn>
+                </SummaryRow>
+                <Spacer size="4" />
+            </>
+            
+        </div>
+    );
+}
 
 ///////////// DETAILS /////////////////
 

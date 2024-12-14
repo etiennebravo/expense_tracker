@@ -1,7 +1,9 @@
 import json
+from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -90,6 +92,62 @@ def register_transaction(request):
         return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
+
+
+@login_required
+def list_monthly_transactions(request):
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+
+        current_date = datetime.now()
+        income = Transaction.objects.filter(userID=user, date__year=current_date.year, 
+                      date__month=current_date.month, transaction_type='income')
+        expense = Transaction.objects.filter(userID=user, date__year=current_date.year, 
+                      date__month=current_date.month, transaction_type='expense')
+        weekly_expense = Transaction.objects.filter(userID=user, transaction_type='expense',
+                                                    repeat_interval='weekly')
+        monthly_expense = Transaction.objects.filter(userID=user, transaction_type='expense',
+                                                     repeat_interval='monthly')
+        variable_expense = Transaction.objects.filter(userID=user, date__year=current_date.year, 
+                      date__month=current_date.month, transaction_type='expense', repeat_interval='none')
+        
+        income_amount = income.aggregate(total=Sum('amount'))['total']
+        expense_amount = expense.aggregate(total=Sum('amount'))['total']
+        weekly_expense_amount = weekly_expense.aggregate(total=Sum('amount'))['total']
+        monthly_expense_amount = monthly_expense.aggregate(total=Sum('amount'))['total']
+        variable_expense_amount = variable_expense.aggregate(total=Sum('amount'))['total']
+
+        if not income_amount:
+            income_amount = 0
+
+        if not expense_amount:
+            expense_amount = 0
+        
+        if (weekly_expense_amount):
+            fixed_expense_amount = (weekly_expense_amount * 4) + monthly_expense_amount
+        elif (monthly_expense_amount):
+            fixed_expense_amount = monthly_expense_amount
+        else:
+            fixed_expense_amount = 0
+        
+        if (income_amount):
+            balance = income_amount - expense_amount
+        elif (expense_amount):
+            balance = expense_amount
+        else: 
+            balance = 0
+        
+        summary = {}
+        summary['balance'] = float(balance)
+        summary['income_amount'] = float(income_amount)
+        summary['expense_amount'] = float(expense_amount)
+        summary['fixed_expense_amount'] = float(fixed_expense_amount)
+        summary['variable_expense_amount'] = float(variable_expense_amount)
+
+        return JsonResponse(summary, safe=False)
+
+    except User.DoesNotExist:
+        JsonResponse({"error", "User does not exist"}, status=400)
 
 
 @login_required
