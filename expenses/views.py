@@ -123,19 +123,26 @@ def list_monthly_transactions(request):
         if not expense_amount:
             expense_amount = 0
         
-        if (weekly_expense_amount):
+        if weekly_expense_amount and monthly_expense_amount:
             fixed_expense_amount = (weekly_expense_amount * 4) + monthly_expense_amount
-        elif (monthly_expense_amount):
+        elif monthly_expense_amount:
             fixed_expense_amount = monthly_expense_amount
+        elif weekly_expense_amount:
+            fixed_expense_amount = weekly_expense_amount
         else:
             fixed_expense_amount = 0
         
-        if (income_amount):
+        if income_amount and expense_amount:
             balance = income_amount - expense_amount
-        elif (expense_amount):
+        elif expense_amount:
             balance = expense_amount
+        elif income_amount:
+            balance = income_amount
         else: 
             balance = 0
+
+        if not variable_expense_amount:
+            variable_expense_amount = 0
         
         summary = {}
         summary['balance'] = float(balance)
