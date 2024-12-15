@@ -59,11 +59,19 @@ class Transaction(models.Model):
     ]
 
     CATEGORIES = [
+        # Categories for expenses
         ('groceries', 'Groceries'),
         ('entertainment', 'Entertainment'),
         ('gas', 'Gas'),
+        ('housing', 'Housing'),
+        ('transportation', 'Transportation'),
+        
+        # Categories for income
+        ('earned', 'Earned income'),
+        ('passive', 'Passive income'),
+        ('porfolio', 'Portfolio income'),
+
         ('other', 'Other')
-        # Add more categories as needed
     ]
     
     TIME_INTERVALS = [

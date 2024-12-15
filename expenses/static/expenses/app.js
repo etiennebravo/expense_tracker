@@ -261,6 +261,28 @@ function TransactionForm () {
         })
     }, []);
 
+    function IncomeCategories() {
+         return (
+                <>
+                <option value="earned">Earned income</option>
+                <option value="passive">Passive income</option>
+                <option value="porftolio">Porftolio income</option>
+                </>
+            )
+    }
+
+    function ExpenseCategories() {
+        return (
+               <>
+               <option value="groceries">Groceries</option>
+               <option value="entertainment">Entertainment</option>
+               <option value="gas">Gas</option>
+               <option value="housing">Housing</option>
+               <option value="transportation">Transportation</option>
+               </>
+           )
+   }
+
     return (
     <div id="transaction-form">
         <Spacer size="4" />
@@ -275,9 +297,8 @@ function TransactionForm () {
             <Spacer size="4" />
             <select className="form-select" name="category" value={state.category} onChange={handleChange} required>
                 <option value="" disabled>Category</option>
-                <option value="groceries">Groceries</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="gas">Gas</option>
+                { state.type === 'income' && <IncomeCategories />}
+                { state.type === 'expense' && <ExpenseCategories />}
                 <option value="other">Other</option>
             </select>
             <Spacer size="4" />
