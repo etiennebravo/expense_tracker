@@ -3,11 +3,23 @@ const bodyRoot = ReactDOM.createRoot(body);
 bodyRoot.render(<App />);
 
 function App() {
+    const [transactions, setTransactions] = React.useState([]);
+
+    React.useEffect(() => {
+        fetchTransactions();
+    }, []);
+
+    function fetchTransactions() {
+        fetch('/list_transactions')
+            .then(response => response.json())
+            .then(data => setTransactions(data));
+    }
+
     return (
         <div className="app">
-            <Summary />
+            <Summary transactions={transactions} />
             <Details />
-            <TransactionForm />
+            <TransactionForm onTransactionAdded={fetchTransactions} />
             <MethodForm />
         </div>
     );
@@ -64,21 +76,7 @@ const SummaryRow = ({ children }) => (
 );
 
 // Main summary component
-function Summary() {
-    const [transactions, setTransactions] = React.useState([])
-
-    React.useEffect(() => {
-        fetch('/list_transactions')
-        .then (response => {
-            console.log(response)
-            return response.json();
-        })
-        .then (data => {
-            console.log(data);
-            setTransactions(data);
-        })
-    }, []);
-
+function Summary({ transactions }) {
     return (
         <div id="summary">
             <Spacer size="3" />
@@ -184,7 +182,7 @@ const Details = () => (
 /////////////// TRANSACTION FORM /////////////////
 
 // TransactionForm Component
-function TransactionForm () {
+function TransactionForm ({ onTransactionAdded }) {
     const [checked, setChecked] = React.useState(false);
     const [methods, setMethods] = React.useState([]);
 
@@ -237,6 +235,7 @@ function TransactionForm () {
                         repetition: 'none'
                     });
                     setChecked(false);
+                    onTransactionAdded();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);
