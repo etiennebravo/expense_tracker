@@ -127,7 +127,8 @@ const TransactionTableRow = ({transaction}) => {
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-    function formatUnixTimestamp(timestamp) {
+    
+    function formatTimestamp(timestamp) {
         var date = new Date(timestamp);
         return date.toLocaleDateString('en-US', {
             weekday: 'long',
@@ -144,7 +145,7 @@ const TransactionTableRow = ({transaction}) => {
             <td>{capitalizeFirstLetter(transaction.type)}</td>
             <td>{capitalizeFirstLetter(transaction.category)}</td>
             <td>${transaction.amount}</td>
-            <td>{formatUnixTimestamp(transaction.date)}</td>
+            <td>{formatTimestamp(transaction.date)}</td>
         </tr>
     );
 }

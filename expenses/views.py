@@ -96,6 +96,13 @@ def register_transaction(request):
 
 @login_required
 def user_summary(request):
+    """
+    Retrieves the summary of the user's financial status.
+    Args:
+        request: HTTP request object
+    Returns:
+        JsonResponse indicating success or failure of the retrieval of information
+    """
     try:
         user = get_object_or_404(User, pk=request.user.id)
 
@@ -135,7 +142,7 @@ def user_summary(request):
         if income_amount and expense_amount:
             balance = income_amount - expense_amount
         elif expense_amount:
-            balance = expense_amount
+            balance = -expense_amount
         elif income_amount:
             balance = income_amount
         else: 
@@ -154,7 +161,7 @@ def user_summary(request):
         return JsonResponse(summary, safe=False)
 
     except User.DoesNotExist:
-        JsonResponse({"error", "User does not exist"}, status=400)
+        return JsonResponse({"error": "User does not exist"}, status=400)
 
 
 @login_required
