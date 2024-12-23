@@ -3,11 +3,19 @@ const bodyRoot = ReactDOM.createRoot(body);
 bodyRoot.render(<App />);
 
 function App() {
+    const [summaryInfo, setSummaryInfo] = React.useState([]);
     const [transactions, setTransactions] = React.useState([]);
 
     React.useEffect(() => {
+        fetchSummary();
         fetchTransactions();
     }, []);
+
+    function fetchSummary() {
+        fetch('/summary')
+            .then(response => response.json())
+            .then(data => setSummaryInfo(data));
+    }
 
     function fetchTransactions() {
         fetch('/list_transactions')
@@ -17,9 +25,9 @@ function App() {
 
     return (
         <div className="app">
-            <Summary transactions={transactions} />
-            <Details />
-            <TransactionForm onTransactionAdded={fetchTransactions} />
+            <Summary summary={summaryInfo} />
+            <Details transactions={transactions}/>
+            <TransactionForm onTransactionAdded={fetchSummary} />
             <MethodForm />
         </div>
     );
@@ -76,7 +84,7 @@ const SummaryRow = ({ children }) => (
 );
 
 // Main summary component
-function Summary({ transactions }) {
+function Summary({ summary }) {
     return (
         <div id="summary">
             <Spacer size="3" />
@@ -87,23 +95,23 @@ function Summary({ transactions }) {
             <>
                 <SummaryRow>
                     <SummaryColumn flexClass="flex4">
-                        <SummaryInfo title="Total monthly expenses" amount={transactions.expense_amount} description="+16% Tax" />
+                        <SummaryInfo title="Total monthly expenses" amount={summary.expense_amount} description="+16% Tax" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex6">
-                        <SummaryInfo title="Monthly Income" amount={transactions.income_amount} description="+8% From returns" />
+                        <SummaryInfo title="Monthly Income" amount={summary.income_amount} description="+8% From returns" />
                     </SummaryColumn>
                 </SummaryRow>
                 <Spacer size="4" />
 
                 <SummaryRow>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Total variable expenses" amount={transactions.variable_expense_amount} description="+16% Tax" />
+                        <SummaryInfo title="Total variable expenses" amount={summary.variable_expense_amount} description="+16% Tax" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Total fixed expenses" amount={transactions.fixed_expense_amount} description="Expected payments" />
+                        <SummaryInfo title="Total fixed expenses" amount={summary.fixed_expense_amount} description="Expected payments" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Balance" amount={transactions.balance} description="* The more the better" />
+                        <SummaryInfo title="Balance" amount={summary.balance} description="* The more the better" />
                     </SummaryColumn>
                 </SummaryRow>
                 <Spacer size="4" />
@@ -115,67 +123,57 @@ function Summary({ transactions }) {
 
 ///////////// DETAILS /////////////////
 
-// Month Selector Component
-const MonthSelector = () => (
-    <div>
-        <h2>Month</h2>
-        <select className="form-select" defaultValue={'December 2024'}>
-            <option value="1">December 2024</option>
-            <option value="2">November 2024</option>
-            <option value="3">September 2024</option>
-        </select>
-    </div>
-);
+const TransactionTableRow = ({transaction}) => {
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    function formatUnixTimestamp(timestamp) {
+        var date = new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    }   
 
-// Transaction Table Component
-const TransactionTable = () => (
-    <div>
-        <h2>Recent transactions</h2>
-        <table className="table">
-            <thead className="thead-light">
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Card</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>American Express</td>
-                    <td>Expense</td>
-                    <td>Groceries</td>
-                    <td>$150</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Discovery</td>
-                    <td>Expense</td>
-                    <td>Entertainment</td>
-                    <td>$100</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Cash</td>
-                    <td>Expense</td>
-                    <td>Gas</td>
-                    <td>$20</td>
-                </tr>
-            </tbody>
-        </table>
-        <button type="button" className="btn btn-primary">Add transaction</button>
-    </div>
-);
+    return (
+        <tr>
+            <th scope="row"></th>
+            <td>{capitalizeFirstLetter(transaction.methodName)}</td>
+            <td>{capitalizeFirstLetter(transaction.type)}</td>
+            <td>{capitalizeFirstLetter(transaction.category)}</td>
+            <td>${transaction.amount}</td>
+            <td>{formatUnixTimestamp(transaction.date)}</td>
+        </tr>
+    );
+}
 
 // Main Details Component
-const Details = () => (
+const Details = ({transactions}) => (
     <div id="details">
         <Spacer size="4" />
-        <MonthSelector />
-        <Spacer size="4" />
-        <TransactionTable />
+        <div>
+            <h2>Recent transactions</h2>
+            <Spacer size="3" />
+            <table className="table">
+                <thead className="thead-light">
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Method</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {transactions.map((transaction, index) => (
+                        <TransactionTableRow key={index} transaction={transaction} />
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
 );
 

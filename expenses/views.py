@@ -95,7 +95,7 @@ def register_transaction(request):
 
 
 @login_required
-def list_monthly_transactions(request):
+def user_summary(request):
     try:
         user = get_object_or_404(User, pk=request.user.id)
 
@@ -155,6 +155,38 @@ def list_monthly_transactions(request):
 
     except User.DoesNotExist:
         JsonResponse({"error", "User does not exist"}, status=400)
+
+
+@login_required
+def list_transactions(request):
+    
+    """
+    Lists all transactions from a user. This is used to provide options for the
+    transaction form.
+    Args:
+        request: HTTP request object
+    Returns:
+        JsonResponse indicating success or failure of the retreival of information
+    """
+
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+
+        transaction_list = Transaction.objects.filter(userID=user).order_by('-date')
+
+        serialized_list = []
+        for transaction in transaction_list:
+            serialized_transaction = transaction.serialize()
+            serialized_list.append(serialized_transaction)
+
+        return JsonResponse(serialized_list, safe=False)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except IntegrityError:
+        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
 
 
 @login_required

@@ -10,6 +10,7 @@ urlpatterns = [
     # API
     path("method", views.register_method, name="method"),
     path("list_methods", views.list_methods, name="list_methods"),
-    path("list_transactions", views.list_monthly_transactions, name="list_transactions"),
+    path("list_transactions", views.list_transactions, name="list_transactions"),
+    path("summary", views.user_summary, name="summary"),
     path("register_transaction", views.register_transaction, name="register_transaction")
 ]
