@@ -224,7 +224,6 @@ function TransactionForm ({ onTransactionAdded }) {
                     return response.json();
                 })
                 .then(method => {
-                    console.log(method);
                     setState({
                         type: '',
                         category: '',
@@ -248,14 +247,8 @@ function TransactionForm ({ onTransactionAdded }) {
 
     React.useEffect(() => {
         fetch('/list_methods')
-        .then (response => {
-            console.log(response)
-            return response.json();
-        })
-        .then (methods => {
-            console.log(methods);
-            setMethods(methods)
-        })
+        .then (response => response.json())
+        .then (methods => setMethods(methods))
     }, []);
 
     function IncomeCategories() {
