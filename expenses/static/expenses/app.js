@@ -126,6 +126,13 @@ function Summary({ summary }) {
 const TransactionTableRow = ({transaction, onTransactionEdited}) => {
     const [editMode, setEditMode] = React.useState(false);
     const [methods, setMethods] = React.useState([]);
+    const [formState, setFormState] = React.useState({
+        methodID: transaction.methodID,
+        type: transaction.type,
+        repeat_interval: transaction.repeat_interval,
+        category: transaction.category,
+        amount: transaction.amount
+    });
 
     React.useEffect(() => {
         fetch('/list_methods')
@@ -157,50 +164,58 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
         onTransactionEdited();
     }
 
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setFormState({
+            ...formState,
+            [name]: value
+        });
+    }
+
     if (editMode) {
         return (
             <tr data-id={transaction.id} data-userid={transaction.userID}> 
-            <th scope="row">
-                <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>&#10003;</button>
-                <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
-            </th>
-            <td>
-                <select className="form-select" name="paymentMethod" value={transaction.methodID} required>
-                    { methods.map((method) => (
-                        <option key={method.id} value={method.id}> {method.name} </option>
-                        ))
-                    }
-                </select>
-            </td>
-            <td>
-                <select className="form-select" name="type" value={transaction.type} required>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
-            </td>
-            <td>
-                <select className="form-select" name="repetition" value={transaction.repeat_interval} required>
-                    <option value="none">One time</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
-            </td>
-            <td>
-                <select className="form-select" name="category" value={transaction.category} required>
-                    { transaction.type === 'income' && <IncomeCategories />}
-                    { transaction.type === 'expense' && <ExpenseCategories />}
-                    <option value="other">Other</option>
-                </select>
-            </td>
-            <td>
-                <div class="input-group input-group mb-3">
-                    <span class="input-group-text">$</span>
-                    <input type="text" class="form-control" placeholder={transaction.ampunt}></input>
-                </div>
-            </td>
-            <td>{formatTimestamp(transaction.date)}</td>
-        </tr>
+                <th scope="row">
+                    <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>&#10003;</button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
+                </th>
+                <td>
+                    <select className="form-select" name="methodID" value={formState.methodID} onChange={handleChange} required>
+                        { methods.map((method) => (
+                            <option key={method.id} value={method.id}> {method.name} </option>
+                            ))
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select className="form-select" name="type" value={formState.type} onChange={handleChange} required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </td>
+                <td>
+                    <select className="form-select" name="repeat_interval" value={formState.repeat_interval} onChange={handleChange} required>
+                        <option value="none">One time</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </td>
+                <td>
+                    <select className="form-select" name="category" value={formState.category} onChange={handleChange} required>
+                        { formState.type === 'income' && <IncomeCategories />}
+                        { formState.type === 'expense' && <ExpenseCategories />}
+                        <option value="other">Other</option>
+                    </select>
+                </td>
+                <td>
+                    <div className="input-group input-group mb-3">
+                        <span className="input-group-text">$</span>
+                        <input type="text" className="form-control" name="amount" value={formState.amount} onChange={handleChange} placeholder={transaction.amount}></input>
+                    </div>
+                </td>
+                <td>{formatTimestamp(transaction.date)}</td>
+            </tr>
         );
     }
 
