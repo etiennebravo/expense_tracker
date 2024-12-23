@@ -26,7 +26,7 @@ function App() {
     return (
         <div className="app">
             <Summary summary={summaryInfo} />
-            <Details transactions={transactions}/>
+            <Details transactions={transactions} onTransactionEdited={fetchTransactions} />
             <TransactionForm onTransactionAdded={fetchSummary} />
             <MethodForm />
         </div>
@@ -123,11 +123,24 @@ function Summary({ summary }) {
 
 ///////////// DETAILS /////////////////
 
-const TransactionTableRow = ({transaction}) => {
+const TransactionTableRow = ({transaction, onTransactionEdited}) => {
+    const [editMode, setEditMode] = React.useState(false);
+    const [methods, setMethods] = React.useState([]);
+
+    React.useEffect(() => {
+        fetch('/list_methods')
+        .then (response => response.json())
+        .then (methods => setMethods(methods))
+    }, []);
+
+    function toggleEditMode() {
+        setEditMode(!editMode);
+    }
+
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-    
+
     function formatTimestamp(timestamp) {
         var date = new Date(timestamp);
         return date.toLocaleDateString('en-US', {
@@ -136,13 +149,69 @@ const TransactionTableRow = ({transaction}) => {
             month: 'short',
             day: 'numeric',
         });
-    }   
+    }
+
+    function handleEdit() {
+        // TODO: Implement view in views.py and fetch request
+        toggleEditMode();
+        onTransactionEdited();
+    }
+
+    if (editMode) {
+        return (
+            <tr data-id={transaction.id} data-userid={transaction.userID}> 
+            <th scope="row">
+                <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>&#10003;</button>
+                <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
+            </th>
+            <td>
+                <select className="form-select" name="paymentMethod" value={transaction.methodID} required>
+                    { methods.map((method) => (
+                        <option key={method.id} value={method.id}> {method.name} </option>
+                        ))
+                    }
+                </select>
+            </td>
+            <td>
+                <select className="form-select" name="type" value={transaction.type} required>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </td>
+            <td>
+                <select className="form-select" name="repetition" value={transaction.repeat_interval} required>
+                    <option value="none">One time</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </td>
+            <td>
+                <select className="form-select" name="category" value={transaction.category} required>
+                    { transaction.type === 'income' && <IncomeCategories />}
+                    { transaction.type === 'expense' && <ExpenseCategories />}
+                    <option value="other">Other</option>
+                </select>
+            </td>
+            <td>
+                <div class="input-group input-group mb-3">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" placeholder={transaction.ampunt}></input>
+                </div>
+            </td>
+            <td>{formatTimestamp(transaction.date)}</td>
+        </tr>
+        );
+    }
 
     return (
-        <tr>
-            <th scope="row"></th>
+        <tr data-id={transaction.id} data-userid={transaction.userID}> 
+            <th scope="row">
+                <button type="button" className="btn btn-primary btn-sm" onClick={toggleEditMode}>Edit</button>
+            </th>
             <td>{capitalizeFirstLetter(transaction.methodName)}</td>
             <td>{capitalizeFirstLetter(transaction.type)}</td>
+            <td>{capitalizeFirstLetter(transaction.repeat_interval)}</td>
             <td>{capitalizeFirstLetter(transaction.category)}</td>
             <td>${transaction.amount}</td>
             <td>{formatTimestamp(transaction.date)}</td>
@@ -151,7 +220,7 @@ const TransactionTableRow = ({transaction}) => {
 }
 
 // Main Details Component
-const Details = ({transactions}) => (
+const Details = ({transactions, onTransactionEdited}) => (
     <div id="details">
         <Spacer size="4" />
         <div>
@@ -163,6 +232,7 @@ const Details = ({transactions}) => (
                         <th scope="col"></th>
                         <th scope="col">Method</th>
                         <th scope="col">Type</th>
+                        <th scope="col">Repetition</th>
                         <th scope="col">Category</th>
                         <th scope="col">Amount</th>
                         <th scope="col">Date</th>
@@ -170,7 +240,7 @@ const Details = ({transactions}) => (
                 </thead>
                 <tbody>
                     {transactions.map((transaction, index) => (
-                        <TransactionTableRow key={index} transaction={transaction} />
+                        <TransactionTableRow key={index} transaction={transaction} onTransactionEdited={onTransactionEdited} />
                     ))}
                 </tbody>
             </table>
@@ -179,6 +249,27 @@ const Details = ({transactions}) => (
 );
 
 /////////////// TRANSACTION FORM /////////////////
+const IncomeCategories = () => {
+    return (
+           <>
+           <option value="earned">Earned income</option>
+           <option value="passive">Passive income</option>
+           <option value="porftolio">Porftolio income</option>
+           </>
+       )
+}
+
+const ExpenseCategories = () => {
+   return (
+          <>
+          <option value="groceries">Groceries</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="gas">Gas</option>
+          <option value="housing">Housing</option>
+          <option value="transportation">Transportation</option>
+          </>
+      )
+}
 
 // TransactionForm Component
 function TransactionForm ({ onTransactionAdded }) {
@@ -252,28 +343,7 @@ function TransactionForm ({ onTransactionAdded }) {
         .then (methods => setMethods(methods))
     }, []);
 
-    function IncomeCategories() {
-         return (
-                <>
-                <option value="earned">Earned income</option>
-                <option value="passive">Passive income</option>
-                <option value="porftolio">Porftolio income</option>
-                </>
-            )
-    }
-
-    function ExpenseCategories() {
-        return (
-               <>
-               <option value="groceries">Groceries</option>
-               <option value="entertainment">Entertainment</option>
-               <option value="gas">Gas</option>
-               <option value="housing">Housing</option>
-               <option value="transportation">Transportation</option>
-               </>
-           )
-   }
-
+   
     return (
     <div id="transaction-form">
         <Spacer size="4" />

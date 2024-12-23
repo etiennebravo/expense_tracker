@@ -94,6 +94,7 @@ class Transaction(models.Model):
 
     def serialize(self):
         return {
+            "id": self.id,
             "userID": self.userID.id,
             "methodID": self.payment_methodID.id,
             "methodName": self.payment_methodID.name,

@@ -135,7 +135,7 @@ def user_summary(request):
         elif monthly_expense_amount:
             fixed_expense_amount = monthly_expense_amount
         elif weekly_expense_amount:
-            fixed_expense_amount = weekly_expense_amount
+            fixed_expense_amount = weekly_expense_amount * 4
         else:
             fixed_expense_amount = 0
         
