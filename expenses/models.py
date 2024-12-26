@@ -39,7 +39,9 @@ class PaymentMethod(models.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'name' : self.name
+            'name': self.name,
+            'type': self.type,
+            'processor': self.processor
         }
     
 
@@ -96,8 +98,8 @@ class Transaction(models.Model):
         return {
             "id": self.id,
             "userID": self.userID.id,
-            "methodID": self.payment_methodID.id,
-            "methodName": self.payment_methodID.name,
+            "methodID": self.payment_methodID.id if self.payment_methodID else None,
+            "methodName": self.payment_methodID.name if self.payment_methodID else None,
             "type": self.transaction_type,
             "category": self.category,
             "amount": self.amount,

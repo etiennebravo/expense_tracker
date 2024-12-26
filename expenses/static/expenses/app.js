@@ -158,10 +158,39 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
         });
     }
 
-    function handleEdit() {
-        // TODO: Implement view in views.py and fetch request
-        toggleEditMode();
-        onTransactionEdited();
+    function handleEdit(event) {
+        if (formState.methodID === '' || formState.type === '' || formState.repeat_interval === '' || formState.category === '' || formState.amount === '') {
+            event.preventDefault();
+            console.log('Form must have content');
+            return;
+        }
+
+        fetch(`/edit_transaction/${transaction.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(formState)
+        })
+        .then(response => {
+            if (!response.ok) { throw new Error('Network response was not ok'); }
+            return response.json();
+        })
+        .then(method => {
+            setFormState({
+                methodID: transaction.methodID,
+                type: transaction.type,
+                repeat_interval: transaction.repeat_interval,
+                category: transaction.category,
+                amount: transaction.amount
+            });
+            toggleEditMode();
+            onTransactionEdited();
+        })
+        .catch(error => {
+            console.error('Fetch operation failed', error);
+        })
     }
 
     function handleChange(e) {
@@ -326,7 +355,6 @@ function TransactionForm ({ onTransactionAdded }) {
                 body: JSON.stringify(state)
             })
                 .then(response => {
-                    console.log(response);
                     if (!response.ok) { throw new Error('Network response was not ok'); }
                     return response.json();
                 })
@@ -446,7 +474,6 @@ const MethodForm = () => {
                 body: JSON.stringify(state)
             })
                 .then(response => {
-                    console.log(response);
                     if (!response.ok) { throw new Error('Network response was not ok'); }
                     return response.json();
                 })

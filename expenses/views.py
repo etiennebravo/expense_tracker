@@ -43,7 +43,7 @@ def register_method(request):
         method = PaymentMethod(userID=user, name=method_name, type=method_type, processor=method_processor)
         method.save()
 
-        return JsonResponse({"message": "Method registered"}, status=201)
+        return JsonResponse({"message": "Method registered", "method": method.serialize()}, status=201)
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
@@ -77,7 +77,7 @@ def register_transaction(request):
         amount = data.get('amount', '')
         repetition = data.get('repetition', '')
 
-        paymentMethod = PaymentMethod.objects.get(id=method)
+        paymentMethod = get_object_or_404(PaymentMethod, id=method)
 
         transaction = Transaction(userID=user, payment_methodID=paymentMethod,
                                 transaction_type=type, category=category,
@@ -226,6 +226,53 @@ def list_methods(request):
         return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
+    
+
+@login_required
+def edit_transaction(request, transaction_id):
+    
+    """
+    Edits an existing transaction.
+    Args:
+        request: HTTP request object
+        transaction_id: ID of the transaction to be edited
+    Returns:
+        JsonResponse indicating success or failure of the edit
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+        transaction = get_object_or_404(Transaction, pk=transaction_id)
+
+        data = json.loads(request.body)
+        methodID = data.get('methodID', '')
+        type = data.get('type', '')
+        repeat_interval = data.get('repeat_interval', '')
+        category = data.get('category', '')
+        amount = data.get('amount', '')
+
+        paymentMethod = get_object_or_404(PaymentMethod, id=methodID)
+
+        transaction.transaction_type = type
+        transaction.category = category
+        transaction.payment_methodID = paymentMethod
+        transaction.amount = amount
+        transaction.repeat_interval = repeat_interval
+        transaction.save()
+
+        return JsonResponse({"message": "Transaction edited"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except IntegrityError:
+        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
+    except Transaction.DoesNotExist:
+        return JsonResponse({"error", "Transaction does not exist"}, status=404)
 
 
 def login_view(request):
