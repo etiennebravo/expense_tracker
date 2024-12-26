@@ -393,20 +393,20 @@ function TransactionForm ({ onTransactionAdded }) {
         <h1>Add transaction</h1>
         <Spacer size="4" />
         <form>
-            <select className="form-select" name="type" value={state.type} onChange={handleChange} required>
+            <select className="form-control" name="type" value={state.type} onChange={handleChange} required>
                 <option value="" disabled>Transaction Type</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" name="category" value={state.category} onChange={handleChange} required>
+            <select className="form-control" name="category" value={state.category} onChange={handleChange} required>
                 <option value="" disabled>Category</option>
                 { state.type === 'income' && <IncomeCategories />}
                 { state.type === 'expense' && <ExpenseCategories />}
                 <option value="other">Other</option>
             </select>
             <Spacer size="4" />
-            <select className="form-select" name="paymentMethod" value={state.paymentMethod} onChange={handleChange} required>
+            <select className="form-control" name="paymentMethod" value={state.paymentMethod} onChange={handleChange} required>
                 <option value="" disabled>Payment method</option>
                 { methods.map((method) => (
                      <option key={method.id} value={method.id}> {method.name} </option>
@@ -514,14 +514,14 @@ const MethodForm = () => {
                 required
                 />
             </div>
-            <select className="form-select" aria-label="Category Select" name="methodType" value={state.methodType}
+            <select className="form-control" aria-label="Category Select" name="methodType" value={state.methodType}
                 onChange={handleChange}>
                 <option value="" disabled>Type</option>
                 <option value="credit">Credit</option>
                 <option value="debit">Debit</option>
             </select>
             <Spacer size="2" />
-            <select className="form-select" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
+            <select className="form-control" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
                 onChange={handleChange}>
                 <option value="" disabled>Card Processor</option>
                 <option value="mastercard">Mastercard</option>
