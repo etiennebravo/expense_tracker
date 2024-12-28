@@ -4,11 +4,9 @@ bodyRoot.render(<App />);
 
 function App() {
     const [summaryInfo, setSummaryInfo] = React.useState([]);
-    const [transactions, setTransactions] = React.useState([]);
 
     React.useEffect(() => {
         fetchSummary();
-        fetchTransactions();
     }, []);
 
     function fetchSummary() {
@@ -17,16 +15,10 @@ function App() {
             .then(data => setSummaryInfo(data));
     }
 
-    function fetchTransactions() {
-        fetch('/list_transactions')
-            .then(response => response.json())
-            .then(data => setTransactions(data));
-    }
-
     return (
         <div className="app">
             <Summary summary={summaryInfo} />
-            <Details transactions={transactions} onTransactionEdited={fetchTransactions} />
+            <Details />
             <TransactionForm onTransactionAdded={fetchSummary} />
             <MethodForm />
         </div>
@@ -264,33 +256,81 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
 }
 
 // Main Details Component
-const Details = ({transactions, onTransactionEdited}) => (
-    <div id="details">
-        <Spacer size="4" />
-        <div>
-            <h2>Recent transactions</h2>
-            <Spacer size="3" />
-            <table className="table">
-                <thead className="thead-light">
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Method</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Repetition</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {transactions.map((transaction, index) => (
-                        <TransactionTableRow key={index} transaction={transaction} onTransactionEdited={onTransactionEdited} />
+function Details({ onTransactionEdited }) {
+    const [monthList, setMonthList] = React.useState([]);
+    const [selectedMonth, setSelectedMonth] = React.useState(currentMonthYear());
+    const [transactions, setTransactions] = React.useState([]);
+
+    function currentMonthYear() {
+        const date = new Date();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+        return `${month} ${year}`;
+    }
+
+    React.useEffect(() => {
+        fetch('/list_months')
+            .then(response => response.json())
+            .then(monthList => setMonthList(monthList));
+    }, []);
+
+    React.useEffect(() => {
+        if (selectedMonth) {
+            const [month, year] = selectedMonth.split(' ');
+            const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
+            fetch(`/list_month_transactions/${monthIndex}/${year}`)
+                .then(response => response.json())
+                .then(transactions => setTransactions(transactions));
+        }
+    }, [selectedMonth]);
+
+    function handleMonthChange(e) {
+        setSelectedMonth(e.target.value);
+    }
+
+    return (
+        <div id="details">
+            <Spacer size="4" />
+            <form>
+                <h1>Select month</h1>
+                <Spacer size="3"/>
+                <select className="form-control" name="month-filter" onChange={handleMonthChange}>
+                    <option value="">Select Month</option>
+                    {monthList.map((month, index) => (
+                        <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
                     ))}
-                </tbody>
-            </table>
+                </select>
+            </form>
+            <Spacer size="4" />
+            <div>
+                <h2>Recent transactions</h2>
+                <Spacer size="3" />
+                <table className="table">
+                    <thead className="thead-light">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Method</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Repetition</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transactions.map(transaction => (
+                            <TransactionTableRow
+                                key={transaction.id}
+                                transaction={transaction}
+                                onTransactionEdited={onTransactionEdited}
+                            />
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-);
+    );
+}
 
 /////////////// TRANSACTION FORM /////////////////
 const IncomeCategories = () => {
