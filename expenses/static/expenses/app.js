@@ -275,10 +275,14 @@ function Details({ onTransactionEdited }) {
     }, []);
 
     React.useEffect(() => {
-        if (selectedMonth) {
+        if (selectedMonth && selectedMonth !== 'all') {
             const [month, year] = selectedMonth.split(' ');
             const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
             fetch(`/list_month_transactions/${monthIndex}/${year}`)
+                .then(response => response.json())
+                .then(transactions => setTransactions(transactions));
+        } else {
+            fetch('/list_all_transactions')
                 .then(response => response.json())
                 .then(transactions => setTransactions(transactions));
         }
@@ -295,7 +299,7 @@ function Details({ onTransactionEdited }) {
                 <h1>Select month</h1>
                 <Spacer size="3"/>
                 <select className="form-control" name="month-filter" onChange={handleMonthChange}>
-                    <option value="">Select Month</option>
+                    <option value="all">All transactions</option>
                     {monthList.map((month, index) => (
                         <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
                     ))}
