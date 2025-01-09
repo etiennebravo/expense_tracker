@@ -4,9 +4,11 @@ bodyRoot.render(<App />);
 
 function App() {
     const [summaryInfo, setSummaryInfo] = React.useState([]);
+    const [methods, setMethods] = React.useState([]);
 
     React.useEffect(() => {
         fetchSummary();
+        fetchMethods();
     }, []);
 
     function fetchSummary() {
@@ -15,12 +17,18 @@ function App() {
             .then(data => setSummaryInfo(data));
     }
 
+    function fetchMethods() {
+        fetch('/list_methods')
+            .then(response => response.json())
+            .then(data => setMethods(data));
+    }
+
     return (
         <div className="app">
             <Summary summary={summaryInfo} />
-            <Details />
+            <Details onTransactionEdited={fetchSummary} methods={methods} />
             <TransactionForm onTransactionAdded={fetchSummary} />
-            <MethodForm />
+            <MethodForm onMethodAdded={fetchMethods} />
         </div>
     );
 }
@@ -115,9 +123,8 @@ function Summary({ summary }) {
 
 ///////////// DETAILS /////////////////
 
-const TransactionTableRow = ({transaction, onTransactionEdited}) => {
+const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
     const [editMode, setEditMode] = React.useState(false);
-    const [methods, setMethods] = React.useState([]);
     const [formState, setFormState] = React.useState({
         methodID: transaction.methodID,
         type: transaction.type,
@@ -125,12 +132,6 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
         category: transaction.category,
         amount: transaction.amount
     });
-
-    React.useEffect(() => {
-        fetch('/list_methods')
-        .then (response => response.json())
-        .then (methods => setMethods(methods))
-    }, []);
 
     function toggleEditMode() {
         setEditMode(!editMode);
@@ -165,24 +166,24 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
             },
             body: JSON.stringify(formState)
         })
-        .then(response => {
-            if (!response.ok) { throw new Error('Network response was not ok'); }
-            return response.json();
-        })
-        .then(method => {
-            setFormState({
-                methodID: transaction.methodID,
-                type: transaction.type,
-                repeat_interval: transaction.repeat_interval,
-                category: transaction.category,
-                amount: transaction.amount
+            .then(response => {
+                if (!response.ok) { throw new Error('Network response was not ok'); }
+                return response.json();
+            })
+            .then(method => {
+                setFormState({
+                    methodID: transaction.methodID,
+                    type: transaction.type,
+                    repeat_interval: transaction.repeat_interval,
+                    category: transaction.category,
+                    amount: transaction.amount
+                });
+                toggleEditMode();
+                onTransactionEdited();
+            })
+            .catch(error => {
+                console.error('Fetch operation failed', error);
             });
-            toggleEditMode();
-            onTransactionEdited();
-        })
-        .catch(error => {
-            console.error('Fetch operation failed', error);
-        })
     }
 
     function handleChange(e) {
@@ -195,17 +196,16 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
 
     if (editMode) {
         return (
-            <tr data-id={transaction.id} data-userid={transaction.userID}> 
+            <tr data-id={transaction.id} data-userid={transaction.userID}>
                 <th scope="row">
                     <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>&#10003;</button>
                     <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
                 </th>
                 <td>
                     <select className="form-select" name="methodID" value={formState.methodID} onChange={handleChange} required>
-                        { methods.map((method) => (
+                        {methods.map((method) => (
                             <option key={method.id} value={method.id}> {method.name} </option>
-                            ))
-                        }
+                        ))}
                     </select>
                 </td>
                 <td>
@@ -224,8 +224,8 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
                 </td>
                 <td>
                     <select className="form-select" name="category" value={formState.category} onChange={handleChange} required>
-                        { formState.type === 'income' && <IncomeCategories />}
-                        { formState.type === 'expense' && <ExpenseCategories />}
+                        {formState.type === 'income' && <IncomeCategories />}
+                        {formState.type === 'expense' && <ExpenseCategories />}
                         <option value="other">Other</option>
                     </select>
                 </td>
@@ -241,7 +241,7 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
     }
 
     return (
-        <tr data-id={transaction.id} data-userid={transaction.userID}> 
+        <tr data-id={transaction.id} data-userid={transaction.userID}>
             <th scope="row">
                 <button type="button" className="btn btn-primary btn-sm" onClick={toggleEditMode}>Edit</button>
             </th>
@@ -256,17 +256,10 @@ const TransactionTableRow = ({transaction, onTransactionEdited}) => {
 }
 
 // Main Details Component
-function Details({ onTransactionEdited }) {
+function Details({ onTransactionEdited, methods }) {
     const [monthList, setMonthList] = React.useState([]);
-    const [selectedMonth, setSelectedMonth] = React.useState(currentMonthYear());
+    const [selectedMonth, setSelectedMonth] = React.useState('all');
     const [transactions, setTransactions] = React.useState([]);
-
-    function currentMonthYear() {
-        const date = new Date();
-        const month = date.toLocaleString('default', { month: 'long' });
-        const year = date.getFullYear();
-        return `${month} ${year}`;
-    }
 
     React.useEffect(() => {
         fetch('/list_months')
@@ -327,10 +320,12 @@ function Details({ onTransactionEdited }) {
                                 key={transaction.id}
                                 transaction={transaction}
                                 onTransactionEdited={onTransactionEdited}
+                                methods={methods}
                             />
                         ))}
                     </tbody>
                 </table>
+                <Spacer size="5" />
             </div>
         </div>
     );
@@ -490,8 +485,7 @@ function TransactionForm ({ onTransactionAdded }) {
 
 //////////// PAYMENT OPTION FORM ///////////////////
 
-// MethodForm Component
-const MethodForm = () => {
+const MethodForm = ({ onMethodAdded }) => {
     const [state, setState] = React.useState({
         methodName: '',
         methodType: '',
@@ -528,6 +522,7 @@ const MethodForm = () => {
                         methodType: '',
                         methodProcessor: ''
                     });
+                    onMethodAdded();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);

@@ -109,8 +109,6 @@ def user_summary(request):
         current_date = datetime.now()
         income = Transaction.objects.filter(userID=user, date__year=current_date.year, 
                       date__month=current_date.month, transaction_type='income')
-        expense = Transaction.objects.filter(userID=user, date__year=current_date.year, 
-                      date__month=current_date.month, transaction_type='expense')
         weekly_expense = Transaction.objects.filter(userID=user, transaction_type='expense',
                                                     repeat_interval='weekly')
         monthly_expense = Transaction.objects.filter(userID=user, transaction_type='expense',
@@ -119,7 +117,6 @@ def user_summary(request):
                       date__month=current_date.month, transaction_type='expense', repeat_interval='none')
         
         income_amount = income.aggregate(total=Sum('amount'))['total']
-        expense_amount = expense.aggregate(total=Sum('amount'))['total']
         weekly_expense_amount = weekly_expense.aggregate(total=Sum('amount'))['total']
         monthly_expense_amount = monthly_expense.aggregate(total=Sum('amount'))['total']
         variable_expense_amount = variable_expense.aggregate(total=Sum('amount'))['total']
@@ -127,8 +124,8 @@ def user_summary(request):
         if not income_amount:
             income_amount = 0
 
-        if not expense_amount:
-            expense_amount = 0
+        if not variable_expense_amount:
+            variable_expense_amount = 0
         
         if weekly_expense_amount and monthly_expense_amount:
             fixed_expense_amount = (weekly_expense_amount * 4) + monthly_expense_amount
@@ -138,6 +135,8 @@ def user_summary(request):
             fixed_expense_amount = weekly_expense_amount * 4
         else:
             fixed_expense_amount = 0
+
+        expense_amount = fixed_expense_amount + variable_expense_amount
         
         if income_amount and expense_amount:
             balance = income_amount - expense_amount
@@ -148,9 +147,6 @@ def user_summary(request):
         else: 
             balance = 0
 
-        if not variable_expense_amount:
-            variable_expense_amount = 0
-        
         summary = {}
         summary['balance'] = float(balance)
         summary['income_amount'] = float(income_amount)
