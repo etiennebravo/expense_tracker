@@ -62,11 +62,13 @@ class Transaction(models.Model):
 
     CATEGORIES = [
         # Categories for expenses
-        ('groceries', 'Groceries'),
         ('entertainment', 'Entertainment'),
-        ('gas', 'Gas'),
+        ('vehicle', 'Vehicle'),
         ('housing', 'Housing'),
         ('transportation', 'Transportation'),
+        ('shopping', 'Shopping'),
+        ('financial', 'Financial Expenses'),
+        ('food', 'Food and Drinks'),
         
         # Categories for income
         ('earned', 'Earned income'),

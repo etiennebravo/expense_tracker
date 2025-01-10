@@ -202,31 +202,16 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
                     <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
                 </th>
                 <td>
-                    <select className="form-select" name="methodID" value={formState.methodID} onChange={handleChange} required>
+                    <select className="form-control" name="methodID" value={formState.methodID} onChange={handleChange} required>
                         {methods.map((method) => (
                             <option key={method.id} value={method.id}> {method.name} </option>
                         ))}
                     </select>
                 </td>
                 <td>
-                    <select className="form-select" name="type" value={formState.type} onChange={handleChange} required>
+                    <select className="form-control" name="type" value={formState.type} onChange={handleChange} required>
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
-                    </select>
-                </td>
-                <td>
-                    <select className="form-select" name="repeat_interval" value={formState.repeat_interval} onChange={handleChange} required>
-                        <option value="none">One time</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </td>
-                <td>
-                    <select className="form-select" name="category" value={formState.category} onChange={handleChange} required>
-                        {formState.type === 'income' && <IncomeCategories />}
-                        {formState.type === 'expense' && <ExpenseCategories />}
-                        <option value="other">Other</option>
                     </select>
                 </td>
                 <td>
@@ -235,7 +220,24 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
                         <input type="text" className="form-control" name="amount" value={formState.amount} onChange={handleChange} placeholder={transaction.amount}></input>
                     </div>
                 </td>
-                <td>{formatTimestamp(transaction.date)}</td>
+                <td>
+                    <select className="form-control" name="category" value={formState.category} onChange={handleChange} required>
+                        {formState.type === 'income' && <IncomeCategories />}
+                        {formState.type === 'expense' && <ExpenseCategories />}
+                        <option value="other">Other</option>
+                    </select>
+                </td>
+                <td>
+                    <select className="form-control" name="repeat_interval" value={formState.repeat_interval} onChange={handleChange} required>
+                        <option value="none">One time</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" readonly class="form-control-plaintext" value={formatTimestamp(transaction.date)}></input>
+                </td>
             </tr>
         );
     }
@@ -247,9 +249,9 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
             </th>
             <td>{capitalizeFirstLetter(transaction.methodName)}</td>
             <td>{capitalizeFirstLetter(transaction.type)}</td>
-            <td>{capitalizeFirstLetter(transaction.repeat_interval)}</td>
-            <td>{capitalizeFirstLetter(transaction.category)}</td>
             <td>${transaction.amount}</td>
+            <td>{capitalizeFirstLetter(transaction.category)}</td>
+            <td>{capitalizeFirstLetter(transaction.repeat_interval)}</td>
             <td>{formatTimestamp(transaction.date)}</td>
         </tr>
     );
@@ -302,29 +304,31 @@ function Details({ onTransactionEdited, methods }) {
             <div>
                 <h2>Recent transactions</h2>
                 <Spacer size="3" />
-                <table className="table">
-                    <thead className="thead-light">
-                        <tr>
-                            <th scope="col"></th>
-                            <th scope="col">Method</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Repetition</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map(transaction => (
-                            <TransactionTableRow
-                                key={transaction.id}
-                                transaction={transaction}
-                                onTransactionEdited={onTransactionEdited}
-                                methods={methods}
-                            />
-                        ))}
-                    </tbody>
-                </table>
+                <div className="table-responsive">
+                    <table className="table">
+                        <thead className="thead-light">
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Method</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Repetition</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {transactions.map(transaction => (
+                                <TransactionTableRow
+                                    key={transaction.id}
+                                    transaction={transaction}
+                                    onTransactionEdited={onTransactionEdited}
+                                    methods={methods}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
                 <Spacer size="5" />
             </div>
         </div>
@@ -345,11 +349,13 @@ const IncomeCategories = () => {
 const ExpenseCategories = () => {
    return (
           <>
-          <option value="groceries">Groceries</option>
           <option value="entertainment">Entertainment</option>
-          <option value="gas">Gas</option>
+          <option value="vehicle">Vehicle</option>
           <option value="housing">Housing</option>
           <option value="transportation">Transportation</option>
+          <option value="shopping">Shopping</option>
+          <option value="financial">Financial Expenses</option>
+          <option value="food">Food and Drinks</option>
           </>
       )
 }
@@ -467,7 +473,7 @@ function TransactionForm ({ onTransactionAdded }) {
 
             {checked ? 
             <>
-                <select className="form-select" name="repetition" value={state.repetition} onChange={handleChange}>
+                <select className="form-control" name="repetition" value={state.repetition} onChange={handleChange}>
                     <option value="none">One time</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
