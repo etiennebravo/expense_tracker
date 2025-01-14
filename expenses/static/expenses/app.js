@@ -27,7 +27,7 @@ function App() {
         <div className="app">
             <Summary summary={summaryInfo} />
             <Details onTransactionEdited={fetchSummary} methods={methods} />
-            <TransactionForm onTransactionAdded={fetchSummary} />
+            <TransactionForm onTransactionAdded={fetchSummary} methods={methods} />
             <MethodForm onMethodAdded={fetchMethods} />
         </div>
     );
@@ -260,7 +260,7 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
 // Main Details Component
 function Details({ onTransactionEdited, methods }) {
     const [monthList, setMonthList] = React.useState([]);
-    const [selectedMonth, setSelectedMonth] = React.useState('all');
+    const [selectedMonth, setSelectedMonth] = React.useState('');
     const [transactions, setTransactions] = React.useState([]);
 
     React.useEffect(() => {
@@ -270,7 +270,7 @@ function Details({ onTransactionEdited, methods }) {
     }, []);
 
     React.useEffect(() => {
-        if (selectedMonth && selectedMonth !== 'all') {
+        if (selectedMonth) {
             const [month, year] = selectedMonth.split(' ');
             const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
             fetch(`/list_month_transactions/${monthIndex}/${year}`)
@@ -291,10 +291,11 @@ function Details({ onTransactionEdited, methods }) {
         <div id="details">
             <Spacer size="4" />
             <form>
-                <h1>Select month</h1>
+                <h1>Select Filters</h1>
                 <Spacer size="3"/>
+                <label>Time</label>
                 <select className="form-control" name="month-filter" onChange={handleMonthChange}>
-                    <option value="all">All transactions</option>
+                    <option value="">All time</option>
                     {monthList.map((month, index) => (
                         <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
                     ))}
@@ -361,9 +362,8 @@ const ExpenseCategories = () => {
 }
 
 // TransactionForm Component
-function TransactionForm ({ onTransactionAdded }) {
+function TransactionForm ({ onTransactionAdded, methods }) {
     const [checked, setChecked] = React.useState(false);
-    const [methods, setMethods] = React.useState([]);
 
     const [state, setState] = React.useState({
         type: '',
@@ -424,13 +424,6 @@ function TransactionForm ({ onTransactionAdded }) {
 
         return false;
     }
-
-    React.useEffect(() => {
-        fetch('/list_methods')
-        .then (response => response.json())
-        .then (methods => setMethods(methods))
-    }, []);
-
    
     return (
     <div id="transaction-form">
