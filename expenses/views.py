@@ -345,6 +345,13 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
+
+         # Ensure the user filled form
+        if username == '' or password == '':
+            return render(request, "expenses/login.html", {
+            "message": "Must fill all boxes."
+        })
+
         user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful
@@ -368,10 +375,16 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
-
-        # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
+
+        # Ensure the user filled form
+        if username == '' or email == '' or password == '' or confirmation == '':
+            return render(request, "expenses/register.html", {
+            "message": "Must fill all boxes."
+        })
+
+        # Ensure password matches confirmation
         if password != confirmation:
             return render(request, "expenses/register.html", {
                 "message": "Passwords must match."

@@ -90,6 +90,14 @@ html, body {
     height: 100%;
 }
 
+@media (max-width: 720px) {
+    #login {
+        flex-direction: column;
+        gap: var(--spacer-4);
+        padding-top: var(--spacer-4);
+    }
+}
+
 #transaction-button {
     display: inline-block;
     position: fixed;
@@ -109,5 +117,5 @@ html, body {
 
 #transaction-button:hover {
     background-color: var(--cyan);
-    cursor: grab;
+    cursor: pointer;
 }
