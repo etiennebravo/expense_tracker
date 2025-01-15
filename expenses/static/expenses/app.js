@@ -276,8 +276,13 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
 // Main Details Component
 function Details({ onTransactionEdited, methods }) {
     const [monthList, setMonthList] = React.useState([]);
-    const [selectedMonth, setSelectedMonth] = React.useState('');
     const [transactions, setTransactions] = React.useState([]);
+    const [filteredTransactions, setFilteredTransactions] = React.useState([]);
+    const [filter, setFilter] = React.useState({
+        month: '',
+        type: '',
+        method: ''
+    });
 
     React.useEffect(() => {
         fetch('/list_months')
@@ -286,21 +291,47 @@ function Details({ onTransactionEdited, methods }) {
     }, []);
 
     React.useEffect(() => {
-        if (selectedMonth) {
-            const [month, year] = selectedMonth.split(' ');
-            const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
-            fetch(`/list_month_transactions/${monthIndex}/${year}`)
-                .then(response => response.json())
-                .then(transactions => setTransactions(transactions));
-        } else {
-            fetch('/list_all_transactions')
-                .then(response => response.json())
-                .then(transactions => setTransactions(transactions));
-        }
-    }, [selectedMonth]);
+        fetch('/list_all_transactions')
+            .then(response => response.json())
+            .then(transactions => {
+                setTransactions(transactions);
+                setFilteredTransactions(transactions);
+            });
+    }, []);
 
-    function handleMonthChange(e) {
-        setSelectedMonth(e.target.value);
+    React.useEffect(() => {
+        filterTransactions();
+    }, [filter]);
+
+    function handleFilterChange(e) {
+        const { name, value } = e.target;
+        setFilter({
+            ...filter,
+            [name]: value
+        });
+    }
+
+    function filterTransactions() {
+        let filtered = transactions;
+
+        if (filter.month) {
+            const [month, year] = filter.month.split(' ');
+            const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
+            filtered = filtered.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                return transactionDate.getMonth() + 1 === monthIndex && transactionDate.getFullYear() === parseInt(year);
+            });
+        }
+
+        if (filter.type) {
+            filtered = filtered.filter(transaction => transaction.type === filter.type);
+        }
+
+        if (filter.method) {
+            filtered = filtered.filter(transaction => transaction.methodID === parseInt(filter.method));
+        }
+
+        setFilteredTransactions(filtered);
     }
 
     return (
@@ -310,10 +341,25 @@ function Details({ onTransactionEdited, methods }) {
                 <h1>Select Filters</h1>
                 <Spacer size="3"/>
                 <label>Time</label>
-                <select className="form-control" name="month-filter" onChange={handleMonthChange}>
+                <select className="form-control" name="month" value={filter.month} onChange={handleFilterChange}>
                     <option value="">All time</option>
                     {monthList.map((month, index) => (
                         <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
+                    ))}
+                </select>
+                <Spacer size="3"/>
+                <label>Type</label>
+                <select className="form-control" name="type" value={filter.type} onChange={handleFilterChange}>
+                    <option value="">All types</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                <Spacer size="3"/>
+                <label>Payment Method</label>
+                <select className="form-control" name="method" value={filter.method} onChange={handleFilterChange}>
+                    <option value="">All methods</option>
+                    {methods.map((method) => (
+                        <option key={method.id} value={method.id}> {method.name} </option>
                     ))}
                 </select>
             </form>
@@ -335,7 +381,7 @@ function Details({ onTransactionEdited, methods }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {transactions.map(transaction => (
+                            {filteredTransactions.map(transaction => (
                                 <TransactionTableRow
                                     key={transaction.id}
                                     transaction={transaction}
