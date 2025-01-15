@@ -88,8 +88,8 @@ def register_transaction(request):
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
-    except IntegrityError:
-        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except PaymentMethod.DoesNotExist:
+        return JsonResponse({"error", "Payment method does not exist"}, status=404)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
 
@@ -250,8 +250,6 @@ def list_methods(request):
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
-    except IntegrityError:
-        return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
     
@@ -286,8 +284,6 @@ def list_months(request):
 
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
-    except IntegrityError:
-        return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
     
@@ -331,8 +327,8 @@ def edit_transaction(request, transaction_id):
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
-    except IntegrityError:
-        return JsonResponse({"error", "Payment method already exists"}, status=400)
+    except PaymentMethod.DoesNotExist:
+        return JsonResponse({"error", "Payment method does not exist"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
     except Transaction.DoesNotExist:
