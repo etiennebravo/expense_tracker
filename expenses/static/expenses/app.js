@@ -56,7 +56,15 @@ const csrftoken = getCookie('csrftoken');
 
 /// end of citation
 
+/////////////// Utilities ///////////////////
+
 const Spacer = ({ size }) => <div className={`spacer${size}`}></div>;
+
+const Message = ({ color, message }) => 
+    <div>
+        <div className={`alert alert-${color}`} role="alert">{ message }</div>
+        <Spacer size="2" />
+    </div>;
 
 /////////////// SUMMARY ///////////////////
 
@@ -372,7 +380,7 @@ const ExpenseCategories = () => {
 // TransactionForm Component
 function TransactionForm ({ onTransactionAdded, methods }) {
     const [checked, setChecked] = React.useState(false);
-
+    const [alert, setAlert] = React.useState({ success: false, error: false, warning: false});
     const [state, setState] = React.useState({
         type: '',
         category: '',
@@ -420,14 +428,17 @@ function TransactionForm ({ onTransactionAdded, methods }) {
                         repetition: 'none'
                     });
                     setChecked(false);
+                    setAlert({ success: true, error: false, warning: false });
                     onTransactionAdded();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);
+                    setAlert({ success: false, error: true, warning: false });
                 })
 
         } else {
             console.log('Form must have content');
+            setAlert({ success: false, error: false, warning: true });
         }
 
         return false;
@@ -438,6 +449,9 @@ function TransactionForm ({ onTransactionAdded, methods }) {
         <Spacer size="4" />
         <h1>Add transaction</h1>
         <Spacer size="4" />
+        {alert.error && <Message color="error" message="Error submitting form"/>}
+        {alert.warning && <Message color="warning" message="Must fill form"/>}
+        {alert.success && <Message color="success" message="Transaction recorded"/>}
         <form>
             <select className="form-control" name="type" value={state.type} onChange={handleChange} required>
                 <option value="" disabled>Transaction Type</option>
