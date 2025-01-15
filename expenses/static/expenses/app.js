@@ -69,6 +69,14 @@ const SummaryInfo = ({ title, amount, description }) => (
     </div>
 );
 
+const SummaryBalance = ({ title, amount, description }) => (
+    <div className="summary-info">
+        <p>{title}</p>
+        <h1 style={ amount > 0 ? {color: 'green'} : {color: 'red'}}>{amount}</h1>
+        <p className="light-text">{description}</p>
+    </div>
+);
+
 // Summary column component
 const SummaryColumn = ({ flexClass, children }) => (
     <div className={`summary-column ${flexClass}`}>
@@ -95,23 +103,23 @@ function Summary({ summary }) {
             <>
                 <SummaryRow>
                     <SummaryColumn flexClass="flex4">
-                        <SummaryInfo title="Total monthly expenses" amount={summary.expense_amount} description="+16% Tax" />
+                        <SummaryInfo title="Total monthly expenses" amount={summary.expense_amount} description="" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex6">
-                        <SummaryInfo title="Monthly Income" amount={summary.income_amount} description="+8% From returns" />
+                        <SummaryInfo title="Monthly Income" amount={summary.income_amount} description="" />
                     </SummaryColumn>
                 </SummaryRow>
                 <Spacer size="4" />
 
                 <SummaryRow>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Total variable expenses" amount={summary.variable_expense_amount} description="+16% Tax" />
+                        <SummaryInfo title="Total variable expenses" amount={summary.variable_expense_amount} description="One time payments" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Total fixed expenses" amount={summary.fixed_expense_amount} description="Expected payments" />
+                        <SummaryInfo title="Total fixed expenses" amount={summary.fixed_expense_amount} description="Recurring payments" />
                     </SummaryColumn>
                     <SummaryColumn flexClass="flex1">
-                        <SummaryInfo title="Balance" amount={summary.balance} description="* The more the better" />
+                        <SummaryBalance title="Balance" amount={summary.balance} description="* The more the better" />
                     </SummaryColumn>
                 </SummaryRow>
                 <Spacer size="4" />

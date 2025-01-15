@@ -10,6 +10,7 @@
     --spacer-8: 96px;
     --spacer-9: 120px;
     --spacer-10: 160px;
+    --nav-collapse: 992px;
 
     --gray-light: #e0e0e0;
     --gray-normal: #828282;
@@ -49,7 +50,6 @@ html, body {
 #body {
     margin-left: 5%;
     margin-right: 5%;
-    height: calc(100% - var(--nav-height));
 }
 
 #details, #transaction-form, #method-form {
@@ -65,6 +65,12 @@ html, body {
     display: flex;
     flex-direction: row;
     gap: var(--spacer-4);
+}
+
+@media (max-width: 720px) {
+    .summary-row {
+        flex-direction: column;
+    }
 }
 
 .summary-column {
@@ -85,18 +91,20 @@ html, body {
 }
 
 #transaction-button {
+    display: inline-block;
     position: fixed;
-    background-color: var(--blue);
-    color: white;
-    height: var(--spacer-5);
-    width: var(--spacer-5);
-    border-radius: 50%;
-    margin-right: var(--spacer-3);
-    margin-bottom: var(--spacer-3);
-    font-size: xx-large;
-    text-align: center;
     bottom: 0px;
     right: 0px;
+    background-color: var(--teal);
+    color: white;
+    border-radius: 50%;
+    padding: 8px 16px;
+    margin-bottom: var(--spacer-3);
+    margin-right: var(--spacer-3);
+    text-align: center;
+    vertical-align: middle;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 24px;
 }
 
 #transaction-button:hover {
