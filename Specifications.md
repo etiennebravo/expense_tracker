@@ -16,7 +16,7 @@ This is an app that allows the user to keep track of basic finances such as inco
     * A category: Such as groceries, entertainment, or gas (more categories to be added in the future).
     * Payment method used: User can select from their registered forms of payment or cash.
     * An amount in US dollars.
-    * The users can set an expense to repeat every certain amount of time (weekly, monthly or yearly) so that it can be tracked automatically.
+    * The users can set an expense to repeat every certain amount of time (weekly, monthly) so that it can be tracked automatically.
 
 5. Users can access a detailed view of their transactions. The view must include:
     * A field so users can set the timeframe that is used (weekly, monthly or yearly) and the page should display a table with all of the transactions made within the timeframe.

@@ -81,8 +81,7 @@ class Transaction(models.Model):
     TIME_INTERVALS = [
         ('none', 'One Time'),
         ('weekly', 'Weekly'),
-        ('monthly', 'Monthly'),
-        ('yearly', 'Yearly')
+        ('monthly', 'Monthly')
     ]
 
     userID = models.ForeignKey(User, on_delete=models.CASCADE)

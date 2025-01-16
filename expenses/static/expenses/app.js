@@ -248,7 +248,6 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
                         <option value="none">One time</option>
                         <option value="weekly">Weekly</option>
                         <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
                     </select>
                 </td>
                 <td>
@@ -538,7 +537,6 @@ function TransactionForm ({ onTransactionAdded, methods }) {
                     <option value="none">One time</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
                 </select>
                 <Spacer size="4" />
             </> : null}
