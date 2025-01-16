@@ -104,7 +104,7 @@ function Summary({ summary }) {
     return (
         <div id="summary">
             <Spacer size="3" />
-            <h2>Summary</h2>
+            <h2>Current month summary</h2>
             <Spacer size="4" />
 
 
