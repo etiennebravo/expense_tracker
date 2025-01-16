@@ -86,8 +86,8 @@ const SummaryBalance = ({ title, amount, description }) => (
 );
 
 // Summary column component
-const SummaryColumn = ({ flexClass, children }) => (
-    <div className={`summary-column ${flexClass}`}>
+const SummaryColumn = ({ children }) => (
+    <div className={`summary-column summary-item`}>
         {children}
     </div>
 );
@@ -113,36 +113,39 @@ function Summary({ summary }) {
 
             <>
                 <SummaryRow>
-                    <SummaryColumn flexClass="flex4">
+                    <SummaryColumn>
+                        <SummaryBalance title="Balance" amount={summary.balance} description="* The more the better" />
+                    </SummaryColumn>
+                    <SummaryColumn>
                         <SummaryInfo title="Total monthly expenses" amount={summary.expense_amount} description="" />
                     </SummaryColumn>
-                    <SummaryColumn flexClass="flex6">
+                    <SummaryColumn>
                         <SummaryInfo title="Monthly Income" amount={summary.income_amount} description="" />
                     </SummaryColumn>
                 </SummaryRow>
                 
 
                 <SummaryRow>
-                    <SummaryColumn flexClass="flex1">
+                    <SummaryColumn>
                         <SummaryInfo title="Total variable expenses" amount={summary.variable_expense_amount} description="One time payments" />
                     </SummaryColumn>
-                    <SummaryColumn flexClass="flex1">
+                    <SummaryColumn>
                         <SummaryInfo title="Total fixed expenses" amount={summary.fixed_expense_amount} description="Recurring payments" />
                     </SummaryColumn>
-                    <SummaryColumn flexClass="flex1">
-                        <SummaryBalance title="Balance" amount={summary.balance} description="* The more the better" />
-                    </SummaryColumn>
                 </SummaryRow>
 
-
-                <SummaryRow>
-                    {summary.payment_method_balances && Object.entries(summary.payment_method_balances).map(([method, balance]) => (
-                        <SummaryColumn flexClass="flex1" key={method}>
-                            <SummaryBalance title={method} amount={balance} description="Balance" />
-                        </SummaryColumn>
-                    ))}
-                </SummaryRow>
-
+                {summary.payment_method_balances ? 
+                    <div>
+                        <h3>Payment method balances</h3>
+                        <SummaryRow>
+                            {summary.payment_method_balances && Object.entries(summary.payment_method_balances).map(([method, balance]) => (
+                                <SummaryColumn key={method}>
+                                    <SummaryBalance title={method} amount={balance} description="Balance" />
+                                </SummaryColumn>
+                            ))}
+                        </SummaryRow>
+                </div>
+                : null }
             </>
             
         </div>

@@ -64,6 +64,7 @@ html, body {
 .summary-row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: var(--spacer-4);
 }
 
@@ -76,6 +77,16 @@ html, body {
 .summary-column {
     border: 2px solid var(--gray-light);
     border-radius: var(--spacer-1);
+}
+
+.summary-item {
+    flex: 1 1 300px;
+}
+
+@media (max-width: 720px) {
+    .summary-item {
+        flex: 1 1 100%;
+    }
 }
 
 .summary-info {
