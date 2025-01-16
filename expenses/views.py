@@ -147,12 +147,22 @@ def user_summary(request):
         else: 
             balance = 0
 
-        summary = {}
-        summary['balance'] = float(balance)
-        summary['income_amount'] = float(income_amount)
-        summary['expense_amount'] = float(expense_amount)
-        summary['fixed_expense_amount'] = float(fixed_expense_amount)
-        summary['variable_expense_amount'] = float(variable_expense_amount)
+        # Calculate balance for each payment method
+        payment_methods = PaymentMethod.objects.filter(userID=user)
+        payment_method_balances = {}
+        for method in payment_methods:
+            method_income = Transaction.objects.filter(userID=user, payment_methodID=method, transaction_type='income').aggregate(total=Sum('amount'))['total'] or 0
+            method_expense = Transaction.objects.filter(userID=user, payment_methodID=method, transaction_type='expense').aggregate(total=Sum('amount'))['total'] or 0
+            payment_method_balances[method.name] = float(method_income - method_expense)
+
+        summary = {
+            'balance': float(balance),
+            'income_amount': float(income_amount),
+            'expense_amount': float(expense_amount),
+            'fixed_expense_amount': float(fixed_expense_amount),
+            'variable_expense_amount': float(variable_expense_amount),
+            'payment_method_balances': payment_method_balances
+        }
 
         return JsonResponse(summary, safe=False)
 

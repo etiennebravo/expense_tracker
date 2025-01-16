@@ -94,9 +94,12 @@ const SummaryColumn = ({ flexClass, children }) => (
 
 // Summary row component
 const SummaryRow = ({ children }) => (
-    <div className="summary-row">
-        {children}
-    </div>
+    <>
+        <div className="summary-row">
+            {children}
+        </div>
+        <Spacer size="4" />
+    </>
 );
 
 // Main summary component
@@ -117,7 +120,7 @@ function Summary({ summary }) {
                         <SummaryInfo title="Monthly Income" amount={summary.income_amount} description="" />
                     </SummaryColumn>
                 </SummaryRow>
-                <Spacer size="4" />
+                
 
                 <SummaryRow>
                     <SummaryColumn flexClass="flex1">
@@ -130,7 +133,16 @@ function Summary({ summary }) {
                         <SummaryBalance title="Balance" amount={summary.balance} description="* The more the better" />
                     </SummaryColumn>
                 </SummaryRow>
-                <Spacer size="4" />
+
+
+                <SummaryRow>
+                    {summary.payment_method_balances && Object.entries(summary.payment_method_balances).map(([method, balance]) => (
+                        <SummaryColumn flexClass="flex1" key={method}>
+                            <SummaryBalance title={method} amount={balance} description="Balance" />
+                        </SummaryColumn>
+                    ))}
+                </SummaryRow>
+
             </>
             
         </div>
