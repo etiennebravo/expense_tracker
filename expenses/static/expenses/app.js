@@ -3,18 +3,36 @@ const bodyRoot = ReactDOM.createRoot(body);
 bodyRoot.render(<App />);
 
 function App() {
+    const [transactions, setTransactions] = React.useState([]);
     const [summaryInfo, setSummaryInfo] = React.useState([]);
     const [methods, setMethods] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
+        fetchTransactions();
         fetchSummary();
         fetchMethods();
     }, []);
+
+
+    function fetchTransactions() {
+        fetch('/list_all_transactions')
+            .then(response => response.json())
+            .then(transactions => {
+                setTransactions(transactions);
+                setLoading(false);
+            });
+    }
 
     function fetchSummary() {
         fetch('/summary')
             .then(response => response.json())
             .then(data => setSummaryInfo(data));
+    }
+
+    function updateTransactions() {
+        fetchTransactions();
+        fetchSummary();
     }
 
     function fetchMethods() {
@@ -23,10 +41,14 @@ function App() {
             .then(data => setMethods(data));
     }
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="app">
             <Summary summary={summaryInfo} />
-            <Details onTransactionEdited={fetchSummary} methods={methods} />
+            <Details transactions={transactions} onTransactionEdited={updateTransactions} methods={methods} />
             <TransactionForm onTransactionAdded={fetchSummary} methods={methods} />
             <MethodForm onMethodAdded={fetchMethods} />
         </div>
@@ -136,7 +158,7 @@ function Summary({ summary }) {
 
                 {summary.payment_method_balances ? 
                     <div>
-                        <h3>Payment method balances</h3>
+                        <h3>Lifetime method balances</h3>
                         <SummaryRow>
                             {summary.payment_method_balances && Object.entries(summary.payment_method_balances).map(([method, balance]) => (
                                 <SummaryColumn key={method}>
@@ -153,6 +175,14 @@ function Summary({ summary }) {
 }
 
 ///////////// DETAILS /////////////////
+const EmptyTransaction = () => {
+    return (
+        <tr>
+            <th scope="row"></th>
+            <td>No transactions found</td>
+        </tr>
+    );
+}
 
 const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
     const [editMode, setEditMode] = React.useState(false);
@@ -266,7 +296,7 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
                     </select>
                 </td>
                 <td>
-                    <input type="text" readonly class="form-control-plaintext" value={formatTimestamp(transaction.date)}></input>
+                    <input type="text" readOnly className="form-control-plaintext" value={formatTimestamp(transaction.date)}></input>
                 </td>
             </tr>
         );
@@ -288,15 +318,16 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
 }
 
 // Main Details Component
-function Details({ onTransactionEdited, methods }) {
+function Details({ transactions, onTransactionEdited, methods }) {
     const [monthList, setMonthList] = React.useState([]);
-    const [transactions, setTransactions] = React.useState([]);
-    const [filteredTransactions, setFilteredTransactions] = React.useState([]);
+    const [filteredTransactions, setFilteredTransactions] = React.useState(transactions);
     const [filter, setFilter] = React.useState({
         month: '',
         type: '',
         method: ''
     });
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const PageSize = 10;
 
     React.useEffect(() => {
         fetch('/list_months')
@@ -305,13 +336,8 @@ function Details({ onTransactionEdited, methods }) {
     }, []);
 
     React.useEffect(() => {
-        fetch('/list_all_transactions')
-            .then(response => response.json())
-            .then(transactions => {
-                setTransactions(transactions);
-                setFilteredTransactions(transactions);
-            });
-    }, []);
+        setFilteredTransactions(transactions);
+    }, [transactions]);
 
     React.useEffect(() => {
         filterTransactions();
@@ -330,7 +356,7 @@ function Details({ onTransactionEdited, methods }) {
 
         if (filter.month) {
             const [month, year] = filter.month.split(' ');
-            const monthIndex = new Date(Date.parse(month + " 1, 2012")).getMonth() + 1;
+            const monthIndex = new Date(Date.parse(month + " 1, 2000")).getMonth() + 1;
             filtered = filtered.filter(transaction => {
                 const transactionDate = new Date(transaction.date);
                 return transactionDate.getMonth() + 1 === monthIndex && transactionDate.getFullYear() === parseInt(year);
@@ -348,26 +374,38 @@ function Details({ onTransactionEdited, methods }) {
         setFilteredTransactions(filtered);
     }
 
+    const currentListData = React.useMemo(() => {
+        const firstPageIndex = (currentPage - 1) * PageSize;
+        const lastPageIndex = firstPageIndex + PageSize;
+        return filteredTransactions.slice(firstPageIndex, lastPageIndex);
+    }, [currentPage, filteredTransactions]);
+
     return (
         <div id="details">
             <Spacer size="4" />
             <form>
-                <h1>Select Filters</h1>
+                <h2>Details</h2>
                 <Spacer size="3"/>
-                <label>Time</label>
-                <select className="form-control" name="month" value={filter.month} onChange={handleFilterChange}>
-                    <option value="">All time</option>
-                    {monthList.map((month, index) => (
-                        <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
-                    ))}
-                </select>
-                <Spacer size="3"/>
-                <label>Type</label>
-                <select className="form-control" name="type" value={filter.type} onChange={handleFilterChange}>
-                    <option value="">All types</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
+                    <div className="filters">
+                        <div className="flex1">
+                            <label>Time</label>
+                            <select className="form-control" name="month" value={filter.month} onChange={handleFilterChange}>
+                                <option value="">All time</option>
+                                {monthList.map((month, index) => (
+                                    <option key={index} value={`${month.month} ${month.year}`}> {month.month} {month.year} </option>
+                                ))}
+                            </select>
+                        </div>
+                    <Spacer size="3"/>
+                    <div className="flex1">
+                        <label>Type</label>
+                        <select className="form-control" name="type" value={filter.type} onChange={handleFilterChange}>
+                            <option value="">All types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                </div>
                 <Spacer size="3"/>
                 <label>Payment Method</label>
                 <select className="form-control" name="method" value={filter.method} onChange={handleFilterChange}>
@@ -395,22 +433,53 @@ function Details({ onTransactionEdited, methods }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredTransactions.map(transaction => (
-                                <TransactionTableRow
-                                    key={transaction.id}
-                                    transaction={transaction}
-                                    onTransactionEdited={onTransactionEdited}
-                                    methods={methods}
-                                />
-                            ))}
+                        {currentListData.length === 0 && <EmptyTransaction/>}
+                        {currentListData.map(transaction => (
+                            <TransactionTableRow
+                                key={transaction.id}
+                                transaction={transaction}
+                                onTransactionEdited={onTransactionEdited}
+                                methods={methods}
+                            />
+                        ))}
                         </tbody>
                     </table>
+                    <hr/>
                 </div>
+                {filteredTransactions.length > PageSize ? <Pagination
+                    className="pagination-bar"
+                    currentPage={currentPage}
+                    totalCount={filteredTransactions.length}
+                    pageSize={PageSize}
+                    onPageChange={page => setCurrentPage(page)}
+                /> : null}
                 <Spacer size="5" />
             </div>
         </div>
     );
 }
+
+const Pagination = ({ className, currentPage, totalCount, pageSize, onPageChange }) => {
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const handleClick = (page) => {
+        if (onPageChange) { 
+            onPageChange(page); 
+        }
+    };
+
+    return (
+        <ul className={`pagination ${className} flex-row space-evenly`}>
+            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => handleClick(currentPage - 1)} > 
+                <strong className="clickable">Previous</strong>
+            </li>
+            <big>{currentPage}</big>
+            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`} onClick={() => handleClick(currentPage + 1)} >
+                <strong className="clickable">Next</strong>
+            </li>
+        </ul>
+    );
+};
 
 /////////////// TRANSACTION FORM /////////////////
 const IncomeCategories = () => {

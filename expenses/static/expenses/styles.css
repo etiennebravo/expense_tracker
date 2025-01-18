@@ -93,6 +93,12 @@ html, body {
     padding: var(--spacer-2) 0 0 var(--spacer-3);
 }
 
+.filters {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacer-2);
+}
+
 #login {
     display: flex;
     flex-direction: row;
@@ -129,4 +135,29 @@ html, body {
 #transaction-button:hover {
     background-color: var(--cyan);
     cursor: pointer;
+}
+
+.flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.clickable:hover {
+    cursor: pointer;
+}
+
+.space-evenly {
+    justify-content: space-evenly;
+}
+
+.disabled {
+    visibility: hidden;
+}
+
+.pagination-bar {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--light-gray);
 }
