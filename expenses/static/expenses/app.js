@@ -49,7 +49,7 @@ function App() {
         <div className="app">
             <Summary summary={summaryInfo} />
             <Details transactions={transactions} onTransactionEdited={updateTransactions} methods={methods} />
-            <TransactionForm onTransactionAdded={fetchSummary} methods={methods} />
+            <TransactionForm onTransactionAdded={updateTransactions} methods={methods} />
             <MethodForm onMethodAdded={fetchMethods} />
         </div>
     );
@@ -640,6 +640,7 @@ const MethodForm = ({ onMethodAdded }) => {
         methodType: '',
         methodProcessor: ''
     });
+    const [alert, setAlert] = React.useState({ success: false, error: false, warning: false });
 
     const handleChange = (e) => {
         setState({
@@ -651,7 +652,7 @@ const MethodForm = ({ onMethodAdded }) => {
     function createMethod(e) {
         e.preventDefault();
 
-        if (state.methodName != '' && state.methodType != '' && state.methodProcessor != '' ) {
+        if (state.methodName !== '' && state.methodType !== '' && state.methodProcessor !== '') {
             fetch('/method', {
                 method: 'POST',
                 headers: {
@@ -671,14 +672,17 @@ const MethodForm = ({ onMethodAdded }) => {
                         methodType: '',
                         methodProcessor: ''
                     });
+                    setAlert({ success: true, error: false, warning: false });
                     onMethodAdded();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed', error);
-                })
+                    setAlert({ success: false, error: true, warning: false });
+                });
 
         } else {
             console.log('Form must have content');
+            setAlert({ success: false, error: false, warning: true });
         }
 
         return false;
@@ -689,37 +693,40 @@ const MethodForm = ({ onMethodAdded }) => {
             <Spacer size="4" />
             <h1>Add Payment Method</h1>
             <Spacer size="4" />
+            {alert.error && <Message color="danger" message="Error submitting form" />}
+            {alert.warning && <Message color="warning" message="Must fill form" />}
+            {alert.success && <Message color="success" message="Payment method added" />}
             <form>
-            <div className="input-group mb-3">
-                <input
-                type="text"
-                className="form-control"
-                placeholder="Card Name"
-                aria-label="Card-Name"
-                name="methodName"
-                value={state.methodName}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <select className="form-control" aria-label="Category Select" name="methodType" value={state.methodType}
-                onChange={handleChange}>
-                <option value="" disabled>Type</option>
-                <option value="credit">Credit</option>
-                <option value="debit">Debit</option>
-            </select>
-            <Spacer size="2" />
-            <select className="form-control" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
-                onChange={handleChange}>
-                <option value="" disabled>Card Processor</option>
-                <option value="mastercard">Mastercard</option>
-                <option value="visa">Visa</option>
-                <option value="discovery">Discovery</option>
-                <option value="am">American Express</option>
-            </select>
-            <Spacer size="4" />
-            <button type="submit" onClick={event => createMethod(event)} className="btn btn-primary">Add Method</button>
-            <Spacer size="4" />
+                <div className="input-group mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Card Name"
+                        aria-label="Card-Name"
+                        name="methodName"
+                        value={state.methodName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <select className="form-control" aria-label="Category Select" name="methodType" value={state.methodType}
+                    onChange={handleChange}>
+                    <option value="" disabled>Type</option>
+                    <option value="credit">Credit</option>
+                    <option value="debit">Debit</option>
+                </select>
+                <Spacer size="2" />
+                <select className="form-control" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
+                    onChange={handleChange}>
+                    <option value="" disabled>Card Processor</option>
+                    <option value="mastercard">Mastercard</option>
+                    <option value="visa">Visa</option>
+                    <option value="discovery">Discovery</option>
+                    <option value="am">American Express</option>
+                </select>
+                <Spacer size="4" />
+                <button type="submit" onClick={event => createMethod(event)} className="btn btn-primary">Add Method</button>
+                <Spacer size="4" />
             </form>
         </div>
     );
