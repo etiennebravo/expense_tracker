@@ -36,14 +36,14 @@ def register_method(request):
         user = get_object_or_404(User, pk=request.user.id)
 
         data = json.loads(request.body)
-        method_name = data.get('name', '')
-        method_type = data.get('type', '')
-        method_processor = data.get('processor', '')
+        method_name = data.get('methodName', '')
+        method_type = data.get('methodType', '')
+        method_processor = data.get('methodProcessor', '')
 
         method = PaymentMethod(userID=user, name=method_name, type=method_type, processor=method_processor)
         method.save()
 
-        return JsonResponse({"message": "Method registered", "method": method.serialize()}, status=201)
+        return JsonResponse({"message": "Method registered"}, status=201)
     
     except json.JSONDecodeError:
         return JsonResponse({"error", "Invalid JSON in request body"}, status=400)

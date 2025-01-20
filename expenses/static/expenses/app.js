@@ -30,15 +30,16 @@ function App() {
             .then(data => setSummaryInfo(data));
     }
 
-    function updateTransactions() {
-        fetchTransactions();
-        fetchSummary();
-    }
-
     function fetchMethods() {
         fetch('/list_methods')
             .then(response => response.json())
             .then(data => setMethods(data));
+    }
+
+    function updateTransactions() {
+        fetchMethods();
+        fetchTransactions();
+        fetchSummary();
     }
 
     if (loading) {
@@ -50,7 +51,7 @@ function App() {
             <Summary summary={summaryInfo} />
             <Details transactions={transactions} onTransactionEdited={updateTransactions} methods={methods} />
             <TransactionForm onTransactionAdded={updateTransactions} methods={methods} />
-            <MethodForm onMethodAdded={fetchMethods} />
+            <MethodForm onMethodAdded={updateTransactions} />
         </div>
     );
 }
@@ -652,7 +653,7 @@ const MethodForm = ({ onMethodAdded }) => {
     function createMethod(e) {
         e.preventDefault();
 
-        if (state.methodName !== '' && state.methodType !== '' && state.methodProcessor !== '') {
+        if (state.methodName != '' && state.methodType != '' && state.methodProcessor != '') {
             fetch('/method', {
                 method: 'POST',
                 headers: {
@@ -703,20 +704,20 @@ const MethodForm = ({ onMethodAdded }) => {
                         className="form-control"
                         placeholder="Card Name"
                         aria-label="Card-Name"
-                        name="methodName"
+                        name="name"
                         value={state.methodName}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <select className="form-control" aria-label="Category Select" name="methodType" value={state.methodType}
+                <select className="form-control" aria-label="Category Select" name="type" value={state.methodType}
                     onChange={handleChange}>
                     <option value="" disabled>Type</option>
                     <option value="credit">Credit</option>
                     <option value="debit">Debit</option>
                 </select>
                 <Spacer size="2" />
-                <select className="form-control" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
+                <select className="form-control" aria-label="Category Select" name="processor" value={state.methodProcessor}
                     onChange={handleChange}>
                     <option value="" disabled>Card Processor</option>
                     <option value="mastercard">Mastercard</option>
