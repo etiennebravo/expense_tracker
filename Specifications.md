@@ -1,5 +1,5 @@
 # Brief
-This is an app that allows the user to keep track of basic finances such as income and expenses. The app will allow the user to generate a summary of their transactions based on a desired timeframe such as a week, month or year.
+This is an app that allows the user to keep track of basic finances such as income and expenses. The app will allow the user to generate a record of their transactions based on a desired timeframe such as a week, month or year.
 
 ## Specifications
 1. Users are able to create an account to keep track of their personal transactions. Users will be required to register before entering, this is due to the app not being designed to have non-registered users.
@@ -19,12 +19,11 @@ This is an app that allows the user to keep track of basic finances such as inco
     * The users can set an expense to repeat every certain amount of time (weekly, monthly) so that it can be tracked automatically.
 
 5. Users can access a detailed view of their transactions. The view must include:
-    * A field so users can set the timeframe that is used (weekly, monthly or yearly) and the page should display a table with all of the transactions made within the timeframe.
+    * A field so users can set the timeframe that is used (per month) and the page should display a table with all of the transactions made within the timeframe.
     * User should be able to also filter their table by payment method.
     * In the table view, users should also be able to delete or modify their transactions.
-    * If the table exceedes more than 15 elements in the table, use pagination to keep the table from growing too large.
-    * The table must include a button to add another transaction.
-    * Visual aid to help the user. (Graphs or summaries).
+    * If the table exceedes more than 10 elements in the table, use pagination to keep the table from growing too large.
+    * Maybe Visual aid to help the user. (Graphs or summaries).
 
 6. The html and css should fully support a cellphone view. This will allow users from mobile devices to use the app. The page should also use JS when necessary to update values without a page reload.
 

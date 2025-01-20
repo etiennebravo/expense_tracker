@@ -51,6 +51,37 @@ def register_method(request):
         return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
+    
+
+@login_required
+def delete_method(request, method_id):
+    
+    """
+    Deletes a payment method from a user's account.
+    Args:
+        request: HTTP request object
+        method_id: ID of the payment method to be deleted
+    Returns:
+        JsonResponse indicating success or failure of the deletion
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+        method = get_object_or_404(PaymentMethod, pk=method_id)
+
+        method.delete()
+
+        return JsonResponse({"message": "Method deleted"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
+    except PaymentMethod.DoesNotExist:
+        return JsonResponse({"error", "Method does not exist"}, status=404)
 
 
 @login_required
@@ -92,6 +123,37 @@ def register_transaction(request):
         return JsonResponse({"error", "Payment method does not exist"}, status=404)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
+    
+
+@login_required
+def delete_transaction(request, transaction_id):
+    
+    """
+    Deletes a transaction from a user's account.
+    Args:
+        request: HTTP request object
+        transaction_id: ID of the transaction to be deleted
+    Returns:
+        JsonResponse indicating success or failure of the deletion
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+        transaction = get_object_or_404(Transaction, pk=transaction_id)
+
+        transaction.delete()
+
+        return JsonResponse({"message": "Transaction deleted"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
+    except Transaction.DoesNotExist:
+        return JsonResponse({"error", "Transaction does not exist"}, status=404)
 
 
 @login_required
