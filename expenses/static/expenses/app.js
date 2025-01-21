@@ -248,6 +248,24 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
             });
     }
 
+    function handleDelete() {
+        fetch(`/delete_transaction/${transaction.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        .then(response => { 
+            if (!response.ok) { throw new Error('Network response was not ok'); }
+            return response.json();
+        })
+        .then(data => {
+            toggleEditMode();
+            onTransactionEdited();
+        })
+    }
+
     function handleChange(e) {
         const { name, value } = e.target;
         setFormState({
@@ -260,8 +278,9 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
         return (
             <tr data-id={transaction.id} data-userid={transaction.userID}>
                 <th scope="row">
-                    <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>&#10003;</button>
-                    <button type="button" className="btn btn-danger btn-sm" onClick={toggleEditMode}>&#10005;</button>
+                    <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>Save</button>
+                    <button type="button" className="btn btn-warning btn-sm" onClick={toggleEditMode}>Cancel</button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete}>Delete</button>
                 </th>
                 <td>
                     <select className="form-control" name="methodID" value={formState.methodID} onChange={handleChange} required>
@@ -564,8 +583,7 @@ function TransactionForm ({ onTransactionAdded, methods }) {
                 .catch(error => {
                     console.error('Fetch operation failed', error);
                     setAlert({ success: false, error: true, warning: false });
-                })
-
+                });
         } else {
             console.log('Form must have content');
             setAlert({ success: false, error: false, warning: true });

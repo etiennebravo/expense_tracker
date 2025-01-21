@@ -15,6 +15,7 @@ function summary() {
 
     document.querySelector("#summary-button").classList.add("active");
     document.querySelector("#details-button").classList.remove("active");
+    document.querySelector("#transaction-button").classList.remove("active");
     document.querySelector("#method-button").classList.remove("active");
 }
 

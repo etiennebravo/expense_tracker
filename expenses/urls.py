@@ -14,5 +14,6 @@ urlpatterns = [
     path("list_months", views.list_months, name="list_months"),
     path("list_all_transactions", views.list_all_transactions, name="list_all_transactions"),
     path("register_transaction", views.register_transaction, name="register_transaction"),
-    path("edit_transaction/<int:transaction_id>", views.edit_transaction, name="edit_transaction")
+    path("edit_transaction/<int:transaction_id>", views.edit_transaction, name="edit_transaction"),
+    path("delete_transaction/<int:transaction_id>", views.delete_transaction, name="delete_transaction")
 ]
