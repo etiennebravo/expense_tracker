@@ -51,7 +51,45 @@ def register_method(request):
         return JsonResponse({"error", "Payment method already exists"}, status=400)
     except User.DoesNotExist:
         return JsonResponse({"error", "User does not exist"}, status=404)
+
+
+@login_required
+def edit_method(request, method_id):
     
+    """
+    Edits an existing payment method.
+    Args:
+        request: HTTP request object
+        method_id: ID of the payment method to be edited
+    Returns:
+        JsonResponse indicating success or failure of the edit
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    try:
+        user = get_object_or_404(User, pk=request.user.id)
+        method = get_object_or_404(PaymentMethod, pk=method_id)
+
+        data = json.loads(request.body)
+        method_name = data.get('name', '')
+        method_type = data.get('type', '')
+        method_processor = data.get('processor', '')
+
+        method.name = method_name
+        method.type = method_type
+        method.processor = method_processor
+        method.save()
+
+        return JsonResponse({"message": "Method edited"}, status=201)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error", "Invalid JSON in request body"}, status=400)
+    except PaymentMethod.DoesNotExist:
+        return JsonResponse({"error", "Method does not exist"}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({"error", "User does not exist"}, status=404)
 
 @login_required
 def delete_method(request, method_id):

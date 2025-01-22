@@ -39,6 +39,7 @@ class PaymentMethod(models.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'userID': self.userID.id,
             'name': self.name,
             'type': self.type,
             'processor': self.processor

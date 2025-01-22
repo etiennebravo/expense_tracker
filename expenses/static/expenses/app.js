@@ -51,7 +51,7 @@ function App() {
             <Summary summary={summaryInfo} />
             <Details transactions={transactions} onTransactionEdited={updateTransactions} methods={methods} />
             <TransactionForm onTransactionAdded={updateTransactions} methods={methods} />
-            <MethodForm onMethodAdded={updateTransactions} />
+            <MethodForm onMethodAdded={updateTransactions} methods={methods} />
         </div>
     );
 }
@@ -88,6 +88,12 @@ const Message = ({ color, message }) =>
         <div className={`alert alert-${color}`} role="alert">{ message }</div>
         <Spacer size="2" />
     </div>;
+
+function capitalizeFirstLetter(string) {
+    string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+    return string;
+}
+    
 
 /////////////// SUMMARY ///////////////////
 
@@ -197,10 +203,6 @@ const TransactionTableRow = ({ transaction, onTransactionEdited, methods }) => {
 
     function toggleEditMode() {
         setEditMode(!editMode);
-    }
-
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
     function formatTimestamp(timestamp) {
@@ -653,7 +655,125 @@ function TransactionForm ({ onTransactionAdded, methods }) {
 
 //////////// PAYMENT OPTION FORM ///////////////////
 
-const MethodForm = ({ onMethodAdded }) => {
+const MethodTableRow = ({ method, onMethodAdded }) => {
+    const [editMode, setEditMode] = React.useState(false);
+    const [formState, setFormState] = React.useState({
+        methodName: method.name,
+        methodType: method.type,
+        methodProcessor: method.processor
+    });
+
+    function toggleEditMode() {
+        setEditMode(!editMode);
+    }
+
+    function handleFormChange(e) {
+        const { name, value } = e.target;
+        setFormState({
+            ...formState,
+            [name]: value
+        });
+    }
+
+    function handleEdit(event) {
+        if (formState.methodName === '' || formState.methodType === '' || formState.methodProcessor === '') {
+            event.preventDefault();
+            console.log('Form must have content');
+            return;
+        }
+
+        fetch(`/edit_method/${method.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(formState)
+        })
+            .then(response => {
+                if (!response.ok) { throw new Error('Network response was not ok'); }
+                return response.json();
+            })
+            .then(method => {
+                setFormState({
+                    methodName: method.name,
+                    methodType: method.type,
+                    methodProcessor: method.processor
+                });
+                toggleEditMode();
+                onMethodAdded();
+            })
+            .catch(error => {
+                console.error('Fetch operation failed', error);
+            });
+    }
+
+    function handleDelete() {
+        fetch(`/delete_method/${method.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        .then(response => { 
+            if (!response.ok) { throw new Error('Network response was not ok'); }
+            return response.json();
+        })
+        .then(data => {
+            toggleEditMode();
+            onMethodAdded();
+        })
+    }
+
+    if (editMode) {
+        return (
+            <tr data-id={method.id}>
+                <th scope="row">
+                    <button type="button" className="btn btn-primary btn-sm" onClick={handleEdit}>Save</button>
+                    <button type="button" className="btn btn-warning btn-sm" onClick={toggleEditMode}>Cancel</button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete}>Delete</button>
+                </th>
+                <td>
+                    <input className="form-control" type="text" name="methodName" value={formState.methodName} onChange={handleFormChange} required></input>
+                </td>
+                <td>
+                    <select className="form-control" name="methodType" value={formState.methodType} onChange={handleFormChange} required>
+                        <option value="cash">Cash</option>
+                        <option value="credit">Credit</option>
+                        <option value="debit">Debit</option>
+                    </select>
+                </td>
+                <td>
+                    <select className="form-control" name="methodProcessor" value={formState.methodProcessor} onChange={handleFormChange} required>
+                        <option value="" disabled>Card Processor</option>
+                        <option value="mastercard">Mastercard</option>
+                        <option value="visa">Visa</option>
+                        <option value="discovery">Discovery</option>
+                        <option value="am">American Express</option>
+                        <option value="none">None</option>
+                    </select>
+                </td>
+            </tr>
+        );
+    }
+
+    return (
+        <tr data-id={method.id} data-userid={method.userID}>
+            {method.type === 'cash' ? 
+                <th scope="row"></th> :
+                <th scope="row">
+                    <button type="button" className="btn btn-primary btn-sm" onClick={toggleEditMode}>Edit</button>
+                </th>
+            }
+            <td>{capitalizeFirstLetter(method.name)}</td>
+            <td>{capitalizeFirstLetter(method.type)}</td>
+            <td>{capitalizeFirstLetter(method.processor)}</td>
+        </tr>
+    );
+}
+
+const MethodForm = ({ methods, onMethodAdded }) => {
     const [state, setState] = React.useState({
         methodName: '',
         methodType: '',
@@ -710,7 +830,31 @@ const MethodForm = ({ onMethodAdded }) => {
     return (
         <div id="method-form">
             <Spacer size="4" />
-            <h1>Add Payment Method</h1>
+            <div className="table-responsive">
+                <h3>Your methods</h3>
+                    <table className="table">
+                        <thead className="thead-light">
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Processor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {methods.map(method => (
+                            <MethodTableRow 
+                                key={method.id}
+                                method={method}
+                                onMethodAdded={onMethodAdded}
+                            />
+                        ))}
+                        </tbody>
+                    </table>
+                    <hr/>
+                </div>
+            <Spacer size="4" />
+            <h3>Add Payment Method</h3>
             <Spacer size="4" />
             {alert.error && <Message color="danger" message="Error submitting form" />}
             {alert.warning && <Message color="warning" message="Must fill form" />}
@@ -722,26 +866,28 @@ const MethodForm = ({ onMethodAdded }) => {
                         className="form-control"
                         placeholder="Card Name"
                         aria-label="Card-Name"
-                        name="name"
+                        name="methodName"
                         value={state.methodName}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <select className="form-control" aria-label="Category Select" name="type" value={state.methodType}
+                <select className="form-control" aria-label="Category Select" name="methodType" value={state.methodType}
                     onChange={handleChange}>
                     <option value="" disabled>Type</option>
+                    <option value="cash">Cash</option>
                     <option value="credit">Credit</option>
                     <option value="debit">Debit</option>
                 </select>
                 <Spacer size="2" />
-                <select className="form-control" aria-label="Category Select" name="processor" value={state.methodProcessor}
+                <select className="form-control" aria-label="Category Select" name="methodProcessor" value={state.methodProcessor}
                     onChange={handleChange}>
                     <option value="" disabled>Card Processor</option>
                     <option value="mastercard">Mastercard</option>
                     <option value="visa">Visa</option>
                     <option value="discovery">Discovery</option>
                     <option value="am">American Express</option>
+                    <option value="none">None</option>
                 </select>
                 <Spacer size="4" />
                 <button type="submit" onClick={event => createMethod(event)} className="btn btn-primary">Add Method</button>
