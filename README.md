@@ -31,7 +31,7 @@ As for the 'nav-buttons.js' file, it contains the logic for the navigation bar.
 ## How to run
 1. Open terminal and create a folder for the project and clone the files. \
 ```mkdir DirectoryName``` \
-```git clone TODO```
+```git clone https://github.com/etiennebravo/expense_tracker```
 
 2. Navigate to the recently copied project and create a virtual environment for python. \
 ```cd DirectoryName``` \
