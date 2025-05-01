@@ -353,9 +353,9 @@ function Details({ transactions, onTransactionEdited, methods }) {
 
     React.useEffect(() => {
         fetch('/list_months')
-            .then(response => response.json())
-            .then(monthList => setMonthList(monthList));
-    }, []);
+          .then(response => response.json())
+          .then(monthList => setMonthList(monthList));
+      }, [transactions]);
 
     React.useEffect(() => {
         setFilteredTransactions(transactions);
